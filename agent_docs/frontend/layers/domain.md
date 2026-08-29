@@ -1,6 +1,6 @@
 ---
 description: Domain layer — entity interfaces, typed enums, Zod form schemas, pure logic functions
-globs: "frontend/src/features/**/domain/*.ts"
+globs: 'frontend/src/features/**/domain/*.ts'
 alwaysApply: false
 ---
 
@@ -28,13 +28,14 @@ export interface Habit {
   readonly id: string;
   readonly name: string;
   readonly status: THabitStatus;
-  readonly userId: string;       // Relations by ID, not nested objects
+  readonly userId: string; // Relations by ID, not nested objects
   readonly createdAt: Date;
-  readonly completedAt: Date | null;  // Explicit null, not optional
+  readonly completedAt: Date | null; // Explicit null, not optional
 }
 ```
 
 Rules:
+
 - **Readonly fields** — Entities are immutable data. Mutations create new instances.
 - **Relations by ID** — `userId: string`, not `user: User`. Avoids deep nesting and circular references.
 - **Explicit null vs optional** — Use `null` for "no value" (the field exists but is empty). Use `?` for "may not be present" (the field may not exist).
@@ -52,7 +53,12 @@ Use the typed-array enum pattern with the local `getEnumObjectFromArray` helper 
 // features/duties/domain/duty.constants.ts
 import { getEnumObjectFromArray } from '@/shared/utils/getEnumObjectFromArray';
 
-export const dutyStatuses = ['pending', 'assigned', 'completed', 'cancelled'] as const;
+export const dutyStatuses = [
+  'pending',
+  'assigned',
+  'completed',
+  'cancelled',
+] as const;
 export type TDutyStatus = (typeof dutyStatuses)[number];
 export const dutyStatusObject = getEnumObjectFromArray(dutyStatuses);
 ```
@@ -88,6 +94,7 @@ export function createHabitDefaultValues(): TCreateHabitForm {
 ```
 
 Rules:
+
 - Always use `.safeParse()` (returns typed result), never `.parse()` (throws).
 - Compose sub-schemas for reuse: `emailSchema`, `passwordSchema`, `paginationSchema`.
 - Use `.superRefine()` for cross-field validation (e.g., password confirmation).

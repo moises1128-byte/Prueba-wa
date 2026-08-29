@@ -1,0 +1,7 @@
+node_modules
+backend/dist
+backend/coverage
+backend/src/schema.gql
+frontend/.next
+frontend/out
+pnpm-lock.yaml

@@ -1,6 +1,6 @@
 ---
 description: Repo-wide conventions — no magic strings, typed-array enum pattern
-globs: "**/*.ts, **/*.tsx"
+globs: '**/*.ts, **/*.tsx'
 alwaysApply: false
 ---
 
@@ -13,14 +13,21 @@ mapping issues, and doesn't tree-shake well). Instead, define a `const` array + 
 and a small local helper when you need a value→label or validity-check object:
 
 ```ts
-export const dutyStatuses = ['pending', 'assigned', 'completed', 'cancelled'] as const;
+export const dutyStatuses = [
+  'pending',
+  'assigned',
+  'completed',
+  'cancelled',
+] as const;
 export type TDutyStatus = (typeof dutyStatuses)[number];
 
 // Local helper — no external package needed, this project has no shared @repo/utils
 export function getEnumObjectFromArray<T extends readonly string[]>(
   values: T,
 ): { [K in T[number]]: K } {
-  return Object.fromEntries(values.map((v) => [v, v])) as { [K in T[number]]: K };
+  return Object.fromEntries(values.map((v) => [v, v])) as {
+    [K in T[number]]: K;
+  };
 }
 
 export const dutyStatusObject = getEnumObjectFromArray(dutyStatuses);

@@ -1,6 +1,6 @@
 ---
 description: React good practices — ternaries over &&, prop drilling limits, derived values, React.* imports
-globs: "frontend/src/**/*.tsx"
+globs: 'frontend/src/**/*.tsx'
 alwaysApply: false
 ---
 
@@ -37,7 +37,15 @@ return items.length > 0 ? <List items={items} /> : <EmptyState />;
 
 ```tsx
 // avoid nested ternaries
-{status === 'loading' ? <Spinner /> : status === 'error' ? <Error /> : <Content />}
+{
+  status === 'loading' ? (
+    <Spinner />
+  ) : status === 'error' ? (
+    <Error />
+  ) : (
+    <Content />
+  );
+}
 
 // preferred — component map
 const byStatus: Record<Status, React.ReactNode> = {
@@ -67,11 +75,25 @@ return byStatus[status];
 
 ```tsx
 // avoid — filter + map inside JSX
-return <ul>{items.filter(x => x.active).map(x => <Row key={x.id} item={x} />)}</ul>;
+return (
+  <ul>
+    {items
+      .filter((x) => x.active)
+      .map((x) => (
+        <Row key={x.id} item={x} />
+      ))}
+  </ul>
+);
 
 // preferred — derived value above return
 const active = items.filter((x) => x.active);
-return <ul>{active.map((x) => <Row key={x.id} item={x} />)}</ul>;
+return (
+  <ul>
+    {active.map((x) => (
+      <Row key={x.id} item={x} />
+    ))}
+  </ul>
+);
 ```
 
 ```tsx
@@ -114,7 +136,13 @@ function UserList() {
   if (isError) return <ErrorState />;
   if (!data || data.length === 0) return <EmptyState />;
 
-  return <ul>{data.map((u) => <li key={u.id}>{u.name}</li>)}</ul>;
+  return (
+    <ul>
+      {data.map((u) => (
+        <li key={u.id}>{u.name}</li>
+      ))}
+    </ul>
+  );
 }
 ```
 

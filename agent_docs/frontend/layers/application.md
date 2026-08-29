@@ -1,6 +1,6 @@
 ---
 description: Application layer — Apollo Client query/mutation hooks, use cases
-globs: "frontend/src/features/**/application/**/*.ts"
+globs: 'frontend/src/features/**/application/**/*.ts'
 alwaysApply: false
 ---
 
@@ -51,6 +51,7 @@ export function useDuties() {
 ```
 
 Rules:
+
 - The GraphQL document (`DUTIES_QUERY`) lives in `infrastructure/*.graphql.ts` — never inline a
   `gql` tag in the application or UI layer.
 - Always map the raw response through `infrastructure/*.transform.ts` before returning it. The UI
@@ -67,7 +68,10 @@ Wrap Apollo Client's `useMutation`, including cache updates.
 ```typescript
 // features/duties/application/mutations/useCreateDuty.mutation.ts
 import { useMutation } from '@apollo/client';
-import { CREATE_DUTY_MUTATION, DUTIES_QUERY } from '../../infrastructure/duties.graphql';
+import {
+  CREATE_DUTY_MUTATION,
+  DUTIES_QUERY,
+} from '../../infrastructure/duties.graphql';
 import { fromCreateDutyInput } from '../../infrastructure/duties.transform';
 import type { TCreateDutyForm } from '../../domain/duty.form';
 
@@ -85,6 +89,7 @@ export function useCreateDuty() {
 ```
 
 Rules:
+
 - Prefer `refetchQueries` for cache invalidation; reach for manual cache writes (`cache.modify`,
   `cache.writeQuery`) only when optimistic UI is required and the extra complexity earns its keep.
 - Keep the mutation hook a thin passthrough — user-facing feedback (toast, navigation) belongs in
@@ -115,10 +120,15 @@ export const CreateDutyFlowErrors = {
 
 export type CreateDutyFlowResult =
   | { ok: true; data: Duty }
-  | { ok: false; error: (typeof CreateDutyFlowErrors)[keyof typeof CreateDutyFlowErrors] };
+  | {
+      ok: false;
+      error: (typeof CreateDutyFlowErrors)[keyof typeof CreateDutyFlowErrors];
+    };
 
 type Dependencies = {
-  createDuty: (data: TCreateDutyForm) => Promise<{ data?: { createDuty: unknown } }>;
+  createDuty: (
+    data: TCreateDutyForm,
+  ) => Promise<{ data?: { createDuty: unknown } }>;
 };
 
 export async function createDutyFlowUseCase(
@@ -127,7 +137,8 @@ export async function createDutyFlowUseCase(
 ): Promise<CreateDutyFlowResult> {
   try {
     const result = await deps.createDuty(input);
-    if (!result.data) return { ok: false, error: CreateDutyFlowErrors.CreationFailed };
+    if (!result.data)
+      return { ok: false, error: CreateDutyFlowErrors.CreationFailed };
     return { ok: true, data: result.data.createDuty as Duty };
   } catch {
     return { ok: false, error: CreateDutyFlowErrors.CreationFailed };
@@ -139,7 +150,10 @@ export async function createDutyFlowUseCase(
 // features/duties/application/useCases/useCreateDutyFlow.ts
 import React from 'react';
 import { useCreateDuty } from '../mutations/useCreateDuty.mutation';
-import { createDutyFlowUseCase, type CreateDutyFlowResult } from './createDutyFlow.useCase';
+import {
+  createDutyFlowUseCase,
+  type CreateDutyFlowResult,
+} from './createDutyFlow.useCase';
 import type { TCreateDutyForm } from '../../domain/duty.form';
 
 export function useCreateDutyFlow() {

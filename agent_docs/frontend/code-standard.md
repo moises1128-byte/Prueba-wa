@@ -20,22 +20,22 @@ Keep changes consistent with this repo. Prefer clarity, small diffs, and predict
 
 ## Naming conventions (file suffixes by layer)
 
-| Layer / Artifact | Suffix | Example |
-|---|---|---|
-| Domain model | `*.model.ts` | `duty.model.ts` |
-| Domain logic | `*.logic.ts` | `duty.logic.ts` |
-| Domain constants | `*.constants.ts` | `duty.constants.ts` |
-| Form schema | `*.form.ts` | `duty.form.ts` |
-| Infrastructure GraphQL document | `*.graphql.ts` | `duties.graphql.ts` |
-| Infrastructure transform | `*.transform.ts` | `duties.transform.ts` |
-| Application query hook | `use*.query.ts` | `useDuties.query.ts` |
-| Application mutation hook | `use*.mutation.ts` | `useCreateDuty.mutation.ts` |
-| Application use case | `*.useCase.ts` | `createDutyFlow.useCase.ts` |
-| UI atom / molecule | descriptive PascalCase, in `atoms/`/`molecules/` | `Button.tsx`, `DutyStatusBadge.tsx` |
-| UI organism | PascalCase + `Organism`, in `organisms/` | `DutyListOrganism.tsx` |
-| UI template | PascalCase + `Template`, in `templates/` | `DutySchedulerTemplate.tsx` |
-| UI page | PascalCase + `Page`, in `pages/` | `DutySchedulerPage.tsx` |
-| Server Action file | `actions.ts` | `app/duties/actions.ts` |
+| Layer / Artifact                | Suffix                                           | Example                             |
+| ------------------------------- | ------------------------------------------------ | ----------------------------------- |
+| Domain model                    | `*.model.ts`                                     | `duty.model.ts`                     |
+| Domain logic                    | `*.logic.ts`                                     | `duty.logic.ts`                     |
+| Domain constants                | `*.constants.ts`                                 | `duty.constants.ts`                 |
+| Form schema                     | `*.form.ts`                                      | `duty.form.ts`                      |
+| Infrastructure GraphQL document | `*.graphql.ts`                                   | `duties.graphql.ts`                 |
+| Infrastructure transform        | `*.transform.ts`                                 | `duties.transform.ts`               |
+| Application query hook          | `use*.query.ts`                                  | `useDuties.query.ts`                |
+| Application mutation hook       | `use*.mutation.ts`                               | `useCreateDuty.mutation.ts`         |
+| Application use case            | `*.useCase.ts`                                   | `createDutyFlow.useCase.ts`         |
+| UI atom / molecule              | descriptive PascalCase, in `atoms/`/`molecules/` | `Button.tsx`, `DutyStatusBadge.tsx` |
+| UI organism                     | PascalCase + `Organism`, in `organisms/`         | `DutyListOrganism.tsx`              |
+| UI template                     | PascalCase + `Template`, in `templates/`         | `DutySchedulerTemplate.tsx`         |
+| UI page                         | PascalCase + `Page`, in `pages/`                 | `DutySchedulerPage.tsx`             |
+| Server Action file              | `actions.ts`                                     | `app/duties/actions.ts`             |
 
 The file name for a `.tsx` component is camelCase and matches its component:
 `dutyStatusBadge.tsx` exports `function DutyStatusBadge()`. See

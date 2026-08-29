@@ -1,6 +1,6 @@
 ---
 description: Frontend routing — route builder functions, App Router organization
-globs: "frontend/src/shared/routes/*.ts, frontend/src/app/**/*.tsx"
+globs: 'frontend/src/shared/routes/*.ts, frontend/src/app/**/*.tsx'
 alwaysApply: false
 ---
 
@@ -43,7 +43,7 @@ export const routeBuilders = {
 import Link from 'next/link';
 import { routeBuilders } from '@/shared/routes/routes';
 
-<Link href={routeBuilders.duties()}>View Duties</Link>
+<Link href={routeBuilders.duties()}>View Duties</Link>;
 ```
 
 **Programmatic navigation** — use `useRouter` with `routeBuilders`:

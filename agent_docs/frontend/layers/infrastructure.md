@@ -1,6 +1,6 @@
 ---
 description: Infrastructure layer — GraphQL documents, DTO transforms, Apollo Client wiring
-globs: "frontend/src/features/**/infrastructure/*.ts"
+globs: 'frontend/src/features/**/infrastructure/*.ts'
 alwaysApply: false
 ---
 
@@ -63,6 +63,7 @@ export const CREATE_DUTY_MUTATION = gql`
 ```
 
 Rules:
+
 - Name every operation (`query Duties`, not an anonymous `query { ... }`) — named operations show
   up by name in Apollo DevTools and server logs, which matters the moment there's more than one.
 - Co-locate the query/mutation with the feature that owns it. A shared fragment used by 2+
@@ -111,6 +112,7 @@ export function fromCreateDutyInput(form: TCreateDutyForm) {
 ```
 
 Rules:
+
 - Transforms are pure functions — no I/O, no async, no side effects.
 - Name pattern: `toXDomain()` for response→domain, `fromXInput()` for form/domain→mutation
   variables.

@@ -1,6 +1,6 @@
 ---
 description: Backend error handling — DomainError subclasses, GraphQL error formatting
-globs: "backend/src/**/domain/errors/*.ts, backend/src/main.ts"
+globs: 'backend/src/**/domain/errors/*.ts, backend/src/main.ts'
 alwaysApply: false
 ---
 
@@ -35,7 +35,9 @@ import { DomainError } from '../../../../shared/errors/domain-error';
 
 export class DutyNotFoundError extends DomainError {
   readonly code = 'dutyNotFound';
-  constructor() { super('Duty not found'); }
+  constructor() {
+    super('Duty not found');
+  }
 }
 
 export class DutyOverlapError extends DomainError {

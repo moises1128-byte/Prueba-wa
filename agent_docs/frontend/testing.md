@@ -1,6 +1,6 @@
 ---
 description: Frontend testing — DI/IoC, unit tests for domain, component tests with RTL, mock at boundaries
-globs: "frontend/src/test/**/*.test.ts, frontend/src/test/**/*.test.tsx"
+globs: 'frontend/src/test/**/*.test.ts, frontend/src/test/**/*.test.tsx'
 alwaysApply: false
 ---
 
@@ -96,7 +96,10 @@ import { CreateDutyForm } from '../../ui/organisms/createDutyForm';
 
 const mocks = [
   {
-    request: { query: CREATE_DUTY_MUTATION, variables: { input: { title: 'Night shift' /* ... */ } } },
+    request: {
+      query: CREATE_DUTY_MUTATION,
+      variables: { input: { title: 'Night shift' /* ... */ } },
+    },
     result: { data: { createDuty: { id: '1', title: 'Night shift' } } },
   },
 ];

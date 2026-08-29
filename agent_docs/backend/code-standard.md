@@ -1,6 +1,6 @@
 ---
 description: Backend TypeScript/NestJS code conventions — naming, patterns, GraphQL validation
-globs: "backend/src/**/*.ts"
+globs: 'backend/src/**/*.ts'
 alwaysApply: false
 ---
 
@@ -94,5 +94,5 @@ Sandbox and in introspection queries.
 
 - Prefer **function declarations** over arrow functions for methods and handlers.
 - Prefer **composition** over inheritance in domain classes.
-- Avoid comments that describe *what* the code does; write comments only when explaining *why*.
+- Avoid comments that describe _what_ the code does; write comments only when explaining _why_.
 - Tests are the documentation for behavior — prefer tests over prose explanations.

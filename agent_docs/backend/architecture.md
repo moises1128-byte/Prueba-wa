@@ -1,6 +1,6 @@
 ---
 description: Backend Hexagonal Architecture — NestJS + GraphQL + Mongoose, ports & adapters, dependency direction
-globs: "backend/src/**/*.ts"
+globs: 'backend/src/**/*.ts'
 alwaysApply: false
 ---
 
@@ -77,17 +77,17 @@ Application → Resolver        ❌ (use-case importing GraphQL constructs)
 
 ## NestJS / GraphQL Component Mapping
 
-| NestJS / GraphQL Construct | Hexagonal Role | Zone |
-|---|---|---|
-| Plain TypeScript class | Entity / Value Object / Policy | Domain |
-| `@Injectable()` use-case | Application Use-Case | Application |
-| Abstract class | Output Port | Ports |
-| `@Resolver()` | Input Adapter | Presentation |
-| `@ObjectType()` class | Output DTO (GraphQL response shape) | Presentation |
-| `@InputType()` class | Input DTO (GraphQL argument shape) | Presentation |
-| `@Injectable()` repository | Output Adapter | Infrastructure |
-| `@Schema()` (Mongoose) | Persistence model | Infrastructure |
-| `@Module()` | Composition Root | All |
+| NestJS / GraphQL Construct | Hexagonal Role                      | Zone           |
+| -------------------------- | ----------------------------------- | -------------- |
+| Plain TypeScript class     | Entity / Value Object / Policy      | Domain         |
+| `@Injectable()` use-case   | Application Use-Case                | Application    |
+| Abstract class             | Output Port                         | Ports          |
+| `@Resolver()`              | Input Adapter                       | Presentation   |
+| `@ObjectType()` class      | Output DTO (GraphQL response shape) | Presentation   |
+| `@InputType()` class       | Input DTO (GraphQL argument shape)  | Presentation   |
+| `@Injectable()` repository | Output Adapter                      | Infrastructure |
+| `@Schema()` (Mongoose)     | Persistence model                   | Infrastructure |
+| `@Module()`                | Composition Root                    | All            |
 
 ---
 
@@ -164,10 +164,18 @@ export class Duty {
     return new Duty(props);
   }
 
-  get id(): DutyId { return this.props.id; }
-  get title(): string { return this.props.title; }
-  get startsAt(): Date { return this.props.startsAt; }
-  get endsAt(): Date { return this.props.endsAt; }
+  get id(): DutyId {
+    return this.props.id;
+  }
+  get title(): string {
+    return this.props.title;
+  }
+  get startsAt(): Date {
+    return this.props.startsAt;
+  }
+  get endsAt(): Date {
+    return this.props.endsAt;
+  }
 
   overlaps(other: Duty): boolean {
     return this.startsAt < other.endsAt && other.startsAt < this.endsAt;
@@ -192,8 +200,12 @@ export class DutyId {
     return new DutyId(value);
   }
 
-  get value(): string { return this._value; }
-  equals(other: DutyId): boolean { return this._value === other._value; }
+  get value(): string {
+    return this._value;
+  }
+  equals(other: DutyId): boolean {
+    return this._value === other._value;
+  }
 }
 ```
 
@@ -232,7 +244,9 @@ export class DutyOverlapError extends DomainError {
 
 export class DutyNotFoundError extends DomainError {
   readonly code = 'dutyNotFound';
-  constructor() { super('Duty not found'); }
+  constructor() {
+    super('Duty not found');
+  }
 }
 ```
 
@@ -340,7 +354,10 @@ import { DutyDocument, DutyDocumentType } from './duty.schema';
 
 @Injectable()
 export class DutyRepositoryAdapter implements DutyRepository {
-  constructor(@InjectModel(DutyDocument.name) private readonly model: Model<DutyDocumentType>) {}
+  constructor(
+    @InjectModel(DutyDocument.name)
+    private readonly model: Model<DutyDocumentType>,
+  ) {}
 
   async create(duty: Duty): Promise<Duty> {
     const created = await this.model.create(this.toDocument(duty));
@@ -513,12 +530,19 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CreateDutyUseCase } from './application/use-cases/CreateDutyUseCase';
 import { GetDutiesUseCase } from './application/use-cases/GetDutiesUseCase';
 import { DutyRepository } from './application/ports/DutyRepository';
-import { DutyDocument, DutySchema } from './infrastructure/persistence/duty.schema';
+import {
+  DutyDocument,
+  DutySchema,
+} from './infrastructure/persistence/duty.schema';
 import { DutyRepositoryAdapter } from './infrastructure/persistence/DutyRepositoryAdapter';
 import { DutyResolver } from './infrastructure/graphql/Duty.resolver';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: DutyDocument.name, schema: DutySchema }])],
+  imports: [
+    MongooseModule.forFeature([
+      { name: DutyDocument.name, schema: DutySchema },
+    ]),
+  ],
   providers: [
     { provide: DutyRepository, useClass: DutyRepositoryAdapter },
     CreateDutyUseCase,

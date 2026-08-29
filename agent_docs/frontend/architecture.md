@@ -1,6 +1,6 @@
 ---
 description: Frontend Clean Architecture — feature-driven layers (UI with Atomic Design, Application, Domain, Infrastructure)
-globs: "frontend/src/features/**/*.ts, frontend/src/features/**/*.tsx"
+globs: 'frontend/src/features/**/*.ts, frontend/src/features/**/*.tsx'
 alwaysApply: false
 ---
 
@@ -87,13 +87,13 @@ The **UI** layer (whether in `shared/ui/` or a feature's `ui/`) is structured wi
 five levels. This replaces a flat `components/` folder with an explicit hierarchy that makes reuse
 and composition obvious at a glance:
 
-| Level | What it is | Lives in | Example |
-|---|---|---|---|
-| **Atoms** | Smallest, indivisible UI primitives. No business meaning. | `shared/ui/atoms/` | `Button`, `Input`, `Badge`, `Spinner` |
-| **Molecules** | A small group of atoms working together as one unit. | `shared/ui/molecules/` (generic) or `features/<f>/ui/molecules/` (feature-specific) | `LabeledInput`, `SearchBar`, `DutyStatusBadge` |
-| **Organisms** | A self-contained section that owns its own data, loading/error/empty states. Composes molecules + atoms. This is the old "widget". | `features/<f>/ui/organisms/` | `DutyListOrganism`, `AssignmentMapOrganism` |
-| **Templates** | Page-level layout — arranges organisms into a screen skeleton. No data fetching of its own. | `features/<f>/ui/templates/` | `DutySchedulerTemplate` |
-| **Pages** | Route-level screen. Composes one template, passes route params down. Thin. | `features/<f>/ui/pages/` | `DutySchedulerPage` |
+| Level         | What it is                                                                                                                         | Lives in                                                                            | Example                                        |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------- |
+| **Atoms**     | Smallest, indivisible UI primitives. No business meaning.                                                                          | `shared/ui/atoms/`                                                                  | `Button`, `Input`, `Badge`, `Spinner`          |
+| **Molecules** | A small group of atoms working together as one unit.                                                                               | `shared/ui/molecules/` (generic) or `features/<f>/ui/molecules/` (feature-specific) | `LabeledInput`, `SearchBar`, `DutyStatusBadge` |
+| **Organisms** | A self-contained section that owns its own data, loading/error/empty states. Composes molecules + atoms. This is the old "widget". | `features/<f>/ui/organisms/`                                                        | `DutyListOrganism`, `AssignmentMapOrganism`    |
+| **Templates** | Page-level layout — arranges organisms into a screen skeleton. No data fetching of its own.                                        | `features/<f>/ui/templates/`                                                        | `DutySchedulerTemplate`                        |
+| **Pages**     | Route-level screen. Composes one template, passes route params down. Thin.                                                         | `features/<f>/ui/pages/`                                                            | `DutySchedulerPage`                            |
 
 Rules:
 

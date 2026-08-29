@@ -1,6 +1,6 @@
 ---
 description: Form patterns — Zod schema + Form organism + FormContent, react-hook-form + FormProvider
-globs: "frontend/src/features/**/domain/*.form.ts, frontend/src/features/**/ui/organisms/*Form*.tsx"
+globs: 'frontend/src/features/**/domain/*.form.ts, frontend/src/features/**/ui/organisms/*Form*.tsx'
 alwaysApply: false
 ---
 
@@ -10,11 +10,11 @@ alwaysApply: false
 
 Every form splits into three files:
 
-| File | Layer | Responsibility |
-|---|---|---|
-| `*.form.ts` | Domain | Zod schema, inferred type, default values factory |
-| `*Form.tsx` | UI / organisms | `useForm` + `zodResolver` + `FormProvider` + mutation call |
-| `*FormContent.tsx` | UI / molecules | Fields + error messages via `useFormContext` |
+| File               | Layer          | Responsibility                                             |
+| ------------------ | -------------- | ---------------------------------------------------------- |
+| `*.form.ts`        | Domain         | Zod schema, inferred type, default values factory          |
+| `*Form.tsx`        | UI / organisms | `useForm` + `zodResolver` + `FormProvider` + mutation call |
+| `*FormContent.tsx` | UI / molecules | Fields + error messages via `useFormContext`               |
 
 ```
 features/duties/
@@ -62,6 +62,7 @@ export function createDutyDefaultValues(
 ```
 
 Rules:
+
 - Use `.safeParse()`, never `.parse()` (throws).
 - Compose sub-schemas for reuse.
 - State-dependent validation (e.g. "assignee already has a conflicting duty") belongs in a use
@@ -109,6 +110,7 @@ export function CreateDutyForm() {
 ```
 
 Rules:
+
 - Use the mutation's `loading` as the disabled state — no manual `useState` for this.
 - The Form organism does not render fields — delegates to the FormContent molecule.
 - For edit forms: `createDutyDefaultValues(existingDuty)`.
@@ -131,15 +133,25 @@ interface CreateDutyFormContentProps {
   error?: string;
 }
 
-export function CreateDutyFormContent({ disabled, error }: CreateDutyFormContentProps) {
-  const { register, formState: { errors } } = useFormContext<TCreateDutyForm>();
+export function CreateDutyFormContent({
+  disabled,
+  error,
+}: CreateDutyFormContentProps) {
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext<TCreateDutyForm>();
 
   return (
     <div className="flex flex-col gap-4">
       <Input {...register('title')} disabled={disabled} placeholder="Title" />
-      {errors.title ? <p className="text-error text-sm">{errors.title.message}</p> : null}
+      {errors.title ? (
+        <p className="text-error text-sm">{errors.title.message}</p>
+      ) : null}
       {error ? <p className="text-error text-sm">{error}</p> : null}
-      <Button type="submit" disabled={disabled}>Create</Button>
+      <Button type="submit" disabled={disabled}>
+        Create
+      </Button>
     </div>
   );
 }
@@ -159,15 +171,17 @@ const dutyDefinition = z.object({
   endsAt: z.date(),
 });
 
-export const createDutyFormDefinition = dutyDefinition.superRefine((value, ctx) => {
-  if (value.endsAt <= value.startsAt) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'End time must be after start time',
-      path: ['endsAt'],
-    });
-  }
-});
+export const createDutyFormDefinition = dutyDefinition.superRefine(
+  (value, ctx) => {
+    if (value.endsAt <= value.startsAt) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'End time must be after start time',
+        path: ['endsAt'],
+      });
+    }
+  },
+);
 ```
 
 ---

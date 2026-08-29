@@ -1,6 +1,6 @@
 ---
 description: Styling approach — CSS Modules, design tokens as CSS custom properties, per Atomic Design level
-globs: "frontend/src/**/*.tsx, frontend/src/**/*.module.css"
+globs: 'frontend/src/**/*.tsx, frontend/src/**/*.module.css'
 alwaysApply: false
 ---
 

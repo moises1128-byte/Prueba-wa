@@ -1,6 +1,6 @@
 ---
 description: Frontend data fetching patterns — Apollo Client queries/mutations, cache, use cases, Server Actions
-globs: "frontend/src/features/**/application/**/*.ts"
+globs: 'frontend/src/features/**/application/**/*.ts'
 alwaysApply: false
 ---
 
@@ -8,12 +8,12 @@ alwaysApply: false
 
 ## Decision matrix
 
-| Scenario | Approach | Why |
-|---|---|---|
-| Organism's own data on mount | `useQuery` in a query hook | Apollo's normalized cache handles refetch/dedup automatically |
-| Client-side pagination / filtering / search | `useQuery` with dynamic `variables` | Apollo caches per-variable-set |
-| Mutations (form submit, button click) | `useMutation` + optional use case | Typed result, use case handles toast + navigation for complex flows |
-| Server-side mutations (progressive enhancement) | Server Actions (`'use server'`) | `revalidatePath`, works without JS — see `agent_docs/frontend/layers/server.md` |
+| Scenario                                        | Approach                            | Why                                                                             |
+| ----------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------- |
+| Organism's own data on mount                    | `useQuery` in a query hook          | Apollo's normalized cache handles refetch/dedup automatically                   |
+| Client-side pagination / filtering / search     | `useQuery` with dynamic `variables` | Apollo caches per-variable-set                                                  |
+| Mutations (form submit, button click)           | `useMutation` + optional use case   | Typed result, use case handles toast + navigation for complex flows             |
+| Server-side mutations (progressive enhancement) | Server Actions (`'use server'`)     | `revalidatePath`, works without JS — see `agent_docs/frontend/layers/server.md` |
 
 ---
 
@@ -33,7 +33,14 @@ import { gql } from '@apollo/client';
 
 export const DUTIES_QUERY = gql`
   query Duties {
-    duties { id title assigneeId startsAt endsAt status }
+    duties {
+      id
+      title
+      assigneeId
+      startsAt
+      endsAt
+      status
+    }
   }
 `;
 ```
@@ -59,7 +66,13 @@ export function DutyListOrganism() {
   if (loading) return <Skeleton />;
   if (error) return <ErrorState message="Could not load duties" />;
   if (!data?.length) return <EmptyState message="No duties yet" />;
-  return <div>{data.map((d) => <DutyCard key={d.id} duty={d} />)}</div>;
+  return (
+    <div>
+      {data.map((d) => (
+        <DutyCard key={d.id} duty={d} />
+      ))}
+    </div>
+  );
 }
 ```
 
@@ -89,7 +102,10 @@ Use `skip` instead of an `if` before the hook call — hooks must run unconditio
 ```typescript
 // application/mutations/useCreateDuty.mutation.ts
 import { useMutation } from '@apollo/client';
-import { CREATE_DUTY_MUTATION, DUTIES_QUERY } from '../../infrastructure/duties.graphql';
+import {
+  CREATE_DUTY_MUTATION,
+  DUTIES_QUERY,
+} from '../../infrastructure/duties.graphql';
 import { fromCreateDutyInput } from '../../infrastructure/duties.transform';
 
 export function useCreateDuty() {
@@ -98,7 +114,8 @@ export function useCreateDuty() {
   });
 
   return {
-    createDuty: (form: TCreateDutyForm) => mutate({ variables: { input: fromCreateDutyInput(form) } }),
+    createDuty: (form: TCreateDutyForm) =>
+      mutate({ variables: { input: fromCreateDutyInput(form) } }),
     loading,
     error,
   };
@@ -137,7 +154,9 @@ with a plain `fetch`, since Apollo Client's hooks are client-side only.
 // After a delete mutation — evict instead of refetching the whole list
 const [deleteDuty] = useMutation(DELETE_DUTY_MUTATION, {
   update(cache, { data }) {
-    cache.evict({ id: cache.identify({ __typename: 'DutyType', id: data.deleteDuty.id }) });
+    cache.evict({
+      id: cache.identify({ __typename: 'DutyType', id: data.deleteDuty.id }),
+    });
     cache.gc();
   },
 });

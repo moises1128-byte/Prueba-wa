@@ -1,6 +1,6 @@
 ---
 description: Backend testing strategy — unit/integration/E2E pyramid, mocked ports, in-memory fakes, commands
-globs: "backend/src/**/*.spec.ts, backend/test/**/*.e2e-spec.ts"
+globs: 'backend/src/**/*.spec.ts, backend/test/**/*.e2e-spec.ts'
 alwaysApply: false
 ---
 
@@ -16,12 +16,12 @@ pnpm test:cov      # coverage
 pnpm test:e2e      # E2E tests (vitest run --config ./vitest.config.e2e.ts)
 ```
 
-| Layer | What to test | Tool |
-|---|---|---|
-| Domain (entities, value objects, policies) | Business rules, validation, invariants | Vitest — pure unit |
-| Application (use-cases) | Orchestration logic, port interactions | Vitest — unit with mocked ports |
-| Infrastructure (repository adapters) | Mongoose queries, document↔domain mapping | Vitest — integration against a real/test Mongo |
-| Presentation (resolvers) | GraphQL wiring, argument→use-case→response mapping | NestJS `Test.createTestingModule` |
+| Layer                                      | What to test                                       | Tool                                           |
+| ------------------------------------------ | -------------------------------------------------- | ---------------------------------------------- |
+| Domain (entities, value objects, policies) | Business rules, validation, invariants             | Vitest — pure unit                             |
+| Application (use-cases)                    | Orchestration logic, port interactions             | Vitest — unit with mocked ports                |
+| Infrastructure (repository adapters)       | Mongoose queries, document↔domain mapping          | Vitest — integration against a real/test Mongo |
+| Presentation (resolvers)                   | GraphQL wiring, argument→use-case→response mapping | NestJS `Test.createTestingModule`              |
 
 **Done = verified:** `pnpm test` passes, no flaky async tests (stabilize with `vi.useFakeTimers()`
 or proper `await`).
@@ -100,17 +100,33 @@ import { buildDuty } from '../../../../test/support/dutyFactory';
 
 describe('DutyOverlapPolicy', () => {
   it('throws when the candidate overlaps an existing duty', () => {
-    const existing = buildDuty({ startsAt: '2026-01-01T08:00:00Z', endsAt: '2026-01-01T16:00:00Z' });
-    const candidate = buildDuty({ startsAt: '2026-01-01T12:00:00Z', endsAt: '2026-01-01T20:00:00Z' });
+    const existing = buildDuty({
+      startsAt: '2026-01-01T08:00:00Z',
+      endsAt: '2026-01-01T16:00:00Z',
+    });
+    const candidate = buildDuty({
+      startsAt: '2026-01-01T12:00:00Z',
+      endsAt: '2026-01-01T20:00:00Z',
+    });
 
-    expect(() => DutyOverlapPolicy.assertNoOverlap(candidate, [existing])).toThrow(DutyOverlapError);
+    expect(() =>
+      DutyOverlapPolicy.assertNoOverlap(candidate, [existing]),
+    ).toThrow(DutyOverlapError);
   });
 
   it('passes when there is no overlap', () => {
-    const existing = buildDuty({ startsAt: '2026-01-01T08:00:00Z', endsAt: '2026-01-01T16:00:00Z' });
-    const candidate = buildDuty({ startsAt: '2026-01-01T16:00:00Z', endsAt: '2026-01-02T00:00:00Z' });
+    const existing = buildDuty({
+      startsAt: '2026-01-01T08:00:00Z',
+      endsAt: '2026-01-01T16:00:00Z',
+    });
+    const candidate = buildDuty({
+      startsAt: '2026-01-01T16:00:00Z',
+      endsAt: '2026-01-02T00:00:00Z',
+    });
 
-    expect(() => DutyOverlapPolicy.assertNoOverlap(candidate, [existing])).not.toThrow();
+    expect(() =>
+      DutyOverlapPolicy.assertNoOverlap(candidate, [existing]),
+    ).not.toThrow();
   });
 });
 ```
@@ -162,6 +178,7 @@ describe('CreateDutyUseCase', () => {
 ```
 
 **Key rules:**
+
 - Never instantiate a real repository adapter in use-case tests.
 - Never connect to a database in use-case tests.
 - Create fresh mocks in `beforeEach` — never share mutable state between tests.
@@ -193,7 +210,9 @@ export class DutyRepositoryFake extends DutyRepository {
   }
 
   async findByAssignee(assigneeId: string): Promise<Duty[]> {
-    return Array.from(this.store.values()).filter((d) => d.assigneeId === assigneeId);
+    return Array.from(this.store.values()).filter(
+      (d) => d.assigneeId === assigneeId,
+    );
   }
 
   async findAll(): Promise<Duty[]> {
@@ -278,10 +297,10 @@ describe('DutyResolver', () => {
   });
 
   it('maps the created duty to DutyType', async () => {
-    const mockDuty = Duty.restore({ /* ... */ } as never);
+    const mockDuty = Duty.restore({/* ... */} as never);
     createDutyUseCase.execute.mockResolvedValue(mockDuty);
 
-    const result = await resolver.createDuty({ /* valid input */ } as never);
+    const result = await resolver.createDuty({/* valid input */} as never);
 
     expect(createDutyUseCase.execute).toHaveBeenCalledOnce();
     expect(result.id).toBe(mockDuty.id.value);
@@ -345,7 +364,9 @@ describe('Duties (e2e)', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
-    const module: TestingModule = await Test.createTestingModule({ imports: [AppModule] }).compile();
+    const module: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
     app = module.createNestApplication();
     await app.init();
   });
@@ -377,7 +398,10 @@ describe('Duties (e2e)', () => {
   it('returns a dutyOverlap GraphQL error on conflict', async () => {
     const response = await request(app.getHttpServer())
       .post('/graphql')
-      .send({ query: `mutation($input: CreateDutyInput!) { createDuty(input: $input) { id } }`, variables: { input: { /* overlapping window */ } } });
+      .send({
+        query: `mutation($input: CreateDutyInput!) { createDuty(input: $input) { id } }`,
+        variables: { input: {/* overlapping window */} },
+      });
 
     expect(response.body.errors?.[0]?.extensions?.code).toBe('dutyOverlap');
   });
@@ -392,13 +416,13 @@ business-rule failures.
 
 ## What to mock vs what to test for real
 
-| Always mock / fake | Always test for real |
-|---|---|
-| Repository adapters in use-case tests | Domain entities and value objects |
-| `Model` (Mongoose) in resolver/use-case tests | Domain policies |
-| Time (`vi.useFakeTimers`) and randomness | GraphQL input validation (`class-validator`) |
-| | Repository adapters (integration test with a real Mongo) |
-| | Full GraphQL flow in E2E tests |
+| Always mock / fake                            | Always test for real                                     |
+| --------------------------------------------- | -------------------------------------------------------- |
+| Repository adapters in use-case tests         | Domain entities and value objects                        |
+| `Model` (Mongoose) in resolver/use-case tests | Domain policies                                          |
+| Time (`vi.useFakeTimers`) and randomness      | GraphQL input validation (`class-validator`)             |
+|                                               | Repository adapters (integration test with a real Mongo) |
+|                                               | Full GraphQL flow in E2E tests                           |
 
 ---
 
@@ -411,7 +435,10 @@ business-rule failures.
 it('rejects an invalid duty window', async () => {
   const response = await request(app.getHttpServer())
     .post('/graphql')
-    .send({ query: `...`, variables: { input: { endsAt: 'before startsAt' } } });
+    .send({
+      query: `...`,
+      variables: { input: { endsAt: 'before startsAt' } },
+    });
   // 100x slower than a unit test, and sensitive to unrelated GraphQL/HTTP changes
 });
 ```
@@ -423,7 +450,10 @@ Test `Duty.create({ ... })` directly in `Duty.spec.ts` instead.
 ```typescript
 // ❌ Bad — framework overhead where none is needed
 const module = await Test.createTestingModule({
-  providers: [CreateDutyUseCase, { provide: DutyRepository, useValue: mockRepo }],
+  providers: [
+    CreateDutyUseCase,
+    { provide: DutyRepository, useValue: mockRepo },
+  ],
 }).compile();
 ```
 
@@ -434,7 +464,9 @@ Just use `new CreateDutyUseCase(mockRepo)`.
 ```typescript
 // ❌ Bad — fake shared across tests, test order matters
 const repo = new DutyRepositoryFake();
-it('test one', async () => { await repo.create(/* ... */); });
+it('test one', async () => {
+  await repo.create(/* ... */);
+});
 it('test two', async () => {
   const all = await repo.findAll();
   expect(all).toHaveLength(0); // fails — test one already inserted

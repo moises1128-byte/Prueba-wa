@@ -1,6 +1,6 @@
 ---
 description: Server layer — Server Actions, Route Handlers, Next.js caching layers (memoization, data cache)
-globs: "frontend/src/app/**/*.ts, frontend/src/app/api/**/*.ts, frontend/next.config.ts"
+globs: 'frontend/src/app/**/*.ts, frontend/src/app/api/**/*.ts, frontend/next.config.ts'
 alwaysApply: false
 ---
 
@@ -33,12 +33,16 @@ import { createDutyFormDefinition } from '@/features/duties/domain/duty.form';
 
 const CREATE_DUTY_MUTATION = /* GraphQL */ `
   mutation CreateDuty($input: CreateDutyInput!) {
-    createDuty(input: $input) { id }
+    createDuty(input: $input) {
+      id
+    }
   }
 `;
 
 export async function createDutyAction(formData: FormData) {
-  const parsed = createDutyFormDefinition.safeParse(Object.fromEntries(formData));
+  const parsed = createDutyFormDefinition.safeParse(
+    Object.fromEntries(formData),
+  );
   if (!parsed.success) {
     return { success: false, error: 'Validation failed' } as const;
   }
@@ -46,7 +50,10 @@ export async function createDutyAction(formData: FormData) {
   const response = await fetch(process.env.NEXT_PUBLIC_GRAPHQL_URL!, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query: CREATE_DUTY_MUTATION, variables: { input: parsed.data } }),
+    body: JSON.stringify({
+      query: CREATE_DUTY_MUTATION,
+      variables: { input: parsed.data },
+    }),
   });
   const { data, errors } = await response.json();
   if (errors?.length) {
@@ -59,6 +66,7 @@ export async function createDutyAction(formData: FormData) {
 ```
 
 Rules:
+
 - **Never throw** from Server Actions — return a `{ success, ... }` shape. Thrown errors surface
   as generic messages.
 - **Only for mutations** — don't use Server Actions for reads.
@@ -85,13 +93,13 @@ export async function POST(request: NextRequest) {
 
 ### When to use which
 
-| Scenario | Use |
-|---|---|
-| UI form submission (needs progressive enhancement / `revalidatePath`) | Server Action |
-| UI button action (simple case) | Client Component `useMutation` |
-| External API consumer | Route Handler |
-| Webhook receiver | Route Handler |
-| File download / streaming | Route Handler |
+| Scenario                                                              | Use                            |
+| --------------------------------------------------------------------- | ------------------------------ |
+| UI form submission (needs progressive enhancement / `revalidatePath`) | Server Action                  |
+| UI button action (simple case)                                        | Client Component `useMutation` |
+| External API consumer                                                 | Route Handler                  |
+| Webhook receiver                                                      | Route Handler                  |
+| File download / streaming                                             | Route Handler                  |
 
 ---
 
@@ -128,7 +136,7 @@ const response = await fetch(process.env.NEXT_PUBLIC_GRAPHQL_URL!, {
 
 ```typescript
 // In Server Actions:
-revalidateTag('duties');   // Preferred — invalidates everything tagged 'duties'
+revalidateTag('duties'); // Preferred — invalidates everything tagged 'duties'
 revalidatePath('/duties'); // Alternative — invalidates the specific path
 ```
 

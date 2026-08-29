@@ -1,6 +1,6 @@
 ---
 description: Checklist and conventions for adding a new backend module (NestJS + Hexagonal + GraphQL + Mongoose)
-globs: "backend/src/modules/**/*.ts"
+globs: 'backend/src/modules/**/*.ts'
 alwaysApply: false
 ---
 
@@ -39,19 +39,19 @@ src/modules/<moduleName>/
 
 ## Naming conventions
 
-| Concept | Convention | Example |
-|---|---|---|
-| Entity | `PascalCase`, noun | `Duty` |
-| Value object | `PascalCase`, noun | `DutyId` |
-| Domain policy | `PascalCase` + `Policy` | `DutyOverlapPolicy` |
-| Domain error | `PascalCase` + `Error`, extends `DomainError` | `DutyNotFoundError` |
-| Use-case | `PascalCase` + `UseCase` | `CreateDutyUseCase` |
-| Repository port | `PascalCase` + `Repository` | `DutyRepository` |
-| Repository adapter | `PascalCase` + `RepositoryAdapter` | `DutyRepositoryAdapter` |
-| Resolver | `PascalCase` + `Resolver` | `DutyResolver` |
-| GraphQL object type | `PascalCase` + `Type` | `DutyType` |
-| GraphQL input type | `PascalCase` + `Input` | `CreateDutyInput` |
-| Module file | `<moduleName>.module.ts` | `duty.module.ts` |
+| Concept             | Convention                                    | Example                 |
+| ------------------- | --------------------------------------------- | ----------------------- |
+| Entity              | `PascalCase`, noun                            | `Duty`                  |
+| Value object        | `PascalCase`, noun                            | `DutyId`                |
+| Domain policy       | `PascalCase` + `Policy`                       | `DutyOverlapPolicy`     |
+| Domain error        | `PascalCase` + `Error`, extends `DomainError` | `DutyNotFoundError`     |
+| Use-case            | `PascalCase` + `UseCase`                      | `CreateDutyUseCase`     |
+| Repository port     | `PascalCase` + `Repository`                   | `DutyRepository`        |
+| Repository adapter  | `PascalCase` + `RepositoryAdapter`            | `DutyRepositoryAdapter` |
+| Resolver            | `PascalCase` + `Resolver`                     | `DutyResolver`          |
+| GraphQL object type | `PascalCase` + `Type`                         | `DutyType`              |
+| GraphQL input type  | `PascalCase` + `Input`                        | `CreateDutyInput`       |
+| Module file         | `<moduleName>.module.ts`                      | `duty.module.ts`        |
 
 ---
 
@@ -93,7 +93,11 @@ src/modules/<moduleName>/
 
 ```typescript
 @Module({
-  imports: [MongooseModule.forFeature([{ name: DutyDocument.name, schema: DutySchema }])],
+  imports: [
+    MongooseModule.forFeature([
+      { name: DutyDocument.name, schema: DutySchema },
+    ]),
+  ],
   providers: [
     { provide: DutyRepository, useClass: DutyRepositoryAdapter },
     CreateDutyUseCase,

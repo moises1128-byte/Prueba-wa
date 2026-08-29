@@ -1,6 +1,6 @@
 ---
 description: UI layer — Server/Client Components, Atomic Design (atoms→pages), Context for feature state, UI-only hooks
-globs: "frontend/src/features/**/ui/**/*.tsx, frontend/src/shared/ui/**/*.tsx"
+globs: 'frontend/src/features/**/ui/**/*.tsx, frontend/src/shared/ui/**/*.tsx'
 alwaysApply: false
 ---
 
@@ -41,12 +41,12 @@ The tree starts at the server (layouts, pages) and interactivity is pushed to th
 
 ### When to use each
 
-| Use Server Components when you need | Use Client Components when you need |
-|---|---|
-| Data fetching on initial load | Interactivity (`onClick`, `onChange`) |
-| Reduce JavaScript sent to client | State (`useState`, `useReducer`) |
-| Heavy dependencies kept server-side | Effects (`useEffect`) |
-| | Apollo Client hooks (`useQuery`, `useMutation`) — client-side by default in this project |
+| Use Server Components when you need | Use Client Components when you need                                                      |
+| ----------------------------------- | ---------------------------------------------------------------------------------------- |
+| Data fetching on initial load       | Interactivity (`onClick`, `onChange`)                                                    |
+| Reduce JavaScript sent to client    | State (`useState`, `useReducer`)                                                         |
+| Heavy dependencies kept server-side | Effects (`useEffect`)                                                                    |
+|                                     | Apollo Client hooks (`useQuery`, `useMutation`) — client-side by default in this project |
 
 ### Strategy
 
@@ -90,12 +90,12 @@ boundary as narrow as possible.
 
 ### State management decision
 
-| State type | Tool | Example |
-|---|---|---|
+| State type                  | Tool                | Example                          |
+| --------------------------- | ------------------- | -------------------------------- |
 | Server state (GraphQL data) | Apollo Client cache | `useDuties()`, `useCreateDuty()` |
-| Ephemeral UI state | `useState` | Modal open, hover, accordion |
-| URL state (shareable) | `useSearchParams` | Filters, pagination, search |
-| Global UI state | React Context | Theme, locale |
+| Ephemeral UI state          | `useState`          | Modal open, hover, accordion     |
+| URL state (shareable)       | `useSearchParams`   | Filters, pagination, search      |
+| Global UI state             | React Context       | Theme, locale                    |
 
 **Never use Context for server state.** Apollo Client's normalized cache handles caching,
 invalidation, and refetching — don't duplicate that with Context or `useState`.
@@ -113,6 +113,7 @@ Organism (owns data + states) → Molecules / Atoms (presentational, stateless)
 ```
 
 Rules:
+
 - Each organism must be able to **live independently** — if sibling organisms fail or are
   loading, this one still works.
 - Each organism renders its own **loading state**, **error state**, and **empty state**.
@@ -133,12 +134,26 @@ export function DutyActivityOrganism({ dutyId }: { dutyId: string }) {
   const { data, loading, error } = useDutyActivity(dutyId);
 
   if (loading) return <Skeleton />;
-  if (error) return <Card><ErrorState message="Could not load activity" /></Card>;
-  if (!data?.length) return <Card><EmptyState message="No activity yet" /></Card>;
+  if (error)
+    return (
+      <Card>
+        <ErrorState message="Could not load activity" />
+      </Card>
+    );
+  if (!data?.length)
+    return (
+      <Card>
+        <EmptyState message="No activity yet" />
+      </Card>
+    );
 
   return (
     <Card>
-      <ul>{data.map((item) => <li key={item.id}>{item.label}</li>)}</ul>
+      <ul>
+        {data.map((item) => (
+          <li key={item.id}>{item.label}</li>
+        ))}
+      </ul>
     </Card>
   );
 }
@@ -147,6 +162,7 @@ export function DutyActivityOrganism({ dutyId }: { dutyId: string }) {
 ### When to fetch in a Page/Template vs an Organism
 
 By default, each organism fetches its own data. Only fetch higher up (in the page) when:
+
 - **2+ organisms share the same query** — fetch once, pass down as props.
 - **A root resource is needed** to decide if the page should render at all (e.g. duty not found).
 
@@ -172,7 +188,13 @@ interface StepperContextValue {
 
 const StepperContext = React.createContext<StepperContextValue | null>(null);
 
-export function StepperProvider({ totalSteps, children }: { totalSteps: number; children: React.ReactNode }) {
+export function StepperProvider({
+  totalSteps,
+  children,
+}: {
+  totalSteps: number;
+  children: React.ReactNode;
+}) {
   const [currentStep, setCurrentStep] = React.useState(0);
 
   const value = React.useMemo<StepperContextValue>(
@@ -185,7 +207,9 @@ export function StepperProvider({ totalSteps, children }: { totalSteps: number; 
     [currentStep, totalSteps],
   );
 
-  return <StepperContext.Provider value={value}>{children}</StepperContext.Provider>;
+  return (
+    <StepperContext.Provider value={value}>{children}</StepperContext.Provider>
+  );
 }
 
 export function useStepper() {
@@ -196,6 +220,7 @@ export function useStepper() {
 ```
 
 Rules:
+
 - Context local to a feature → `features/<feature>/ui/context/`.
 - Context shared across features → `shared/`.
 - Always wrap the value in `useMemo` to prevent unnecessary re-renders.

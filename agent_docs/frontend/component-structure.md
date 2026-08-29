@@ -1,6 +1,6 @@
 ---
 description: React component internal structure — import order, naming by Atomic Design level, max 150-200 lines
-globs: "frontend/src/features/**/ui/**/*.tsx, frontend/src/shared/ui/**/*.tsx"
+globs: 'frontend/src/features/**/ui/**/*.tsx, frontend/src/shared/ui/**/*.tsx'
 alwaysApply: false
 ---
 
@@ -112,7 +112,13 @@ export function DutyListOrganism() {
   if (loading) return <Skeleton />;
   if (error) return <ErrorState message="Could not load duties" />;
   if (!data?.length) return <EmptyState message="No duties yet" />;
-  return <div>{data.map((d) => <DutyCard key={d.id} duty={d} />)}</div>;
+  return (
+    <div>
+      {data.map((d) => (
+        <DutyCard key={d.id} duty={d} />
+      ))}
+    </div>
+  );
 }
 
 // Molecule — pure rendering

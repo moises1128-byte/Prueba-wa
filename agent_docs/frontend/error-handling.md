@@ -1,6 +1,6 @@
 ---
 description: Frontend error handling — Apollo Client error/loading state, error.tsx boundaries
-globs: "frontend/src/features/**/application/**/*.ts, frontend/src/app/**/error.tsx"
+globs: 'frontend/src/features/**/application/**/*.ts, frontend/src/app/**/error.tsx'
 alwaysApply: false
 ---
 
@@ -46,13 +46,19 @@ Use cases return typed results — `{ ok: true, data } | { ok: false, error }` �
 The UI checks `result.ok` directly.
 
 ```typescript
-export async function createDutyFlowUseCase(input: TCreateDutyForm, deps: Dependencies) {
+export async function createDutyFlowUseCase(
+  input: TCreateDutyForm,
+  deps: Dependencies,
+) {
   try {
     const result = await deps.createDuty(input);
     return { ok: true, data: result.data.createDuty };
   } catch (error) {
-    const code = isApolloError(error) ? error.graphQLErrors[0]?.extensions?.code : undefined;
-    if (code === 'dutyOverlap') return { ok: false, error: 'This duty overlaps an existing one.' };
+    const code = isApolloError(error)
+      ? error.graphQLErrors[0]?.extensions?.code
+      : undefined;
+    if (code === 'dutyOverlap')
+      return { ok: false, error: 'This duty overlaps an existing one.' };
     return { ok: false, error: 'Failed to create duty. Please try again.' };
   }
 }
@@ -73,7 +79,13 @@ export function DutyListOrganism() {
   if (loading) return <Skeleton />;
   if (error) return <ErrorState message="Could not load duties" />;
   if (!data?.length) return <EmptyState message="No duties yet" />;
-  return <div>{data.map((d) => <DutyCard key={d.id} duty={d} />)}</div>;
+  return (
+    <div>
+      {data.map((d) => (
+        <DutyCard key={d.id} duty={d} />
+      ))}
+    </div>
+  );
 }
 ```
 
@@ -83,7 +95,13 @@ export function DutyListOrganism() {
 // app/duties/error.tsx
 'use client';
 
-export default function DutiesError({ error, reset }: { error: Error; reset: () => void }) {
+export default function DutiesError({
+  error,
+  reset,
+}: {
+  error: Error;
+  reset: () => void;
+}) {
   return (
     <div>
       <p>Something went wrong loading duties.</p>
@@ -104,15 +122,15 @@ Server Actions return a `{ success, ... }` shape — never throw. See
 
 ## Summary: where errors are handled
 
-| Layer | Pattern | Throws? |
-|---|---|---|
-| Infrastructure (`*.graphql.ts`, `*.transform.ts`) | Pure mapping, no error handling | Never |
-| Application (query hooks) | Passthrough Apollo's `loading`/`error`/`data` | Never |
-| Application (mutation hooks) | Passthrough Apollo's `loading`/`error` | Never |
-| Application (use cases) | `try/catch` around `mutateAsync`-equivalent calls, return `{ ok, ... }` | Never (caught internally) |
-| Server Actions | Return `{ success, ... }` | Never |
-| UI (organisms) | Check `loading` / `error` / `data` directly | Never |
-| UI (`error.tsx`) | Catches unexpected thrown errors | Catches |
+| Layer                                             | Pattern                                                                 | Throws?                   |
+| ------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------- |
+| Infrastructure (`*.graphql.ts`, `*.transform.ts`) | Pure mapping, no error handling                                         | Never                     |
+| Application (query hooks)                         | Passthrough Apollo's `loading`/`error`/`data`                           | Never                     |
+| Application (mutation hooks)                      | Passthrough Apollo's `loading`/`error`                                  | Never                     |
+| Application (use cases)                           | `try/catch` around `mutateAsync`-equivalent calls, return `{ ok, ... }` | Never (caught internally) |
+| Server Actions                                    | Return `{ success, ... }`                                               | Never                     |
+| UI (organisms)                                    | Check `loading` / `error` / `data` directly                             | Never                     |
+| UI (`error.tsx`)                                  | Catches unexpected thrown errors                                        | Catches                   |
 
 ---
 

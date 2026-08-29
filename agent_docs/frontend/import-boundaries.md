@@ -22,13 +22,13 @@ direction.
 
 ### What can import what
 
-| From \ To | Domain | Infrastructure | Application | UI | shared/ |
-|---|---|---|---|---|---|
-| **Domain** | self | NO | NO | NO | NO |
-| **Infrastructure** | YES | self | NO | NO | NO |
-| **Application** | YES | YES | self | NO | NO |
-| **UI** (atoms/molecules/organisms/templates/pages) | YES | NO (go through Application) | YES | self | YES |
-| **shared/** | YES | NO | NO | self | self |
+| From \ To                                          | Domain | Infrastructure              | Application | UI   | shared/ |
+| -------------------------------------------------- | ------ | --------------------------- | ----------- | ---- | ------- |
+| **Domain**                                         | self   | NO                          | NO          | NO   | NO      |
+| **Infrastructure**                                 | YES    | self                        | NO          | NO   | NO      |
+| **Application**                                    | YES    | YES                         | self        | NO   | NO      |
+| **UI** (atoms/molecules/organisms/templates/pages) | YES    | NO (go through Application) | YES         | self | YES     |
+| **shared/**                                        | YES    | NO                          | NO          | self | self    |
 
 Within UI, the Atomic Design levels also have a one-way composition direction: pages compose
 templates, templates compose organisms, organisms compose molecules/atoms. An atom must never
@@ -52,13 +52,13 @@ import { EmployeeAvatar } from '@/shared/ui/molecules/employeeAvatar';
 
 When two features need the same thing:
 
-| Question | Location |
-|---|---|
-| Generic UI atom/molecule, no business logic? | `shared/ui/atoms/` or `shared/ui/molecules/` |
-| Technical helper (formatting, parsing, enum helper)? | `shared/utils/` |
-| Cross-cutting capability (file upload, notifications)? | `shared/` (dedicated subfolder) |
-| Business rule or domain constraint used by 2+ features? | `shared/domain/` |
-| Specific to one feature? | Stays in that feature |
+| Question                                                | Location                                     |
+| ------------------------------------------------------- | -------------------------------------------- |
+| Generic UI atom/molecule, no business logic?            | `shared/ui/atoms/` or `shared/ui/molecules/` |
+| Technical helper (formatting, parsing, enum helper)?    | `shared/utils/`                              |
+| Cross-cutting capability (file upload, notifications)?  | `shared/` (dedicated subfolder)              |
+| Business rule or domain constraint used by 2+ features? | `shared/domain/`                             |
+| Specific to one feature?                                | Stays in that feature                        |
 
 Start colocated in the feature. Promote only when reuse is proven (2+ features need it) — see
 `agent_docs/backend/architecture.md`'s equivalent rule for the backend side of this same
