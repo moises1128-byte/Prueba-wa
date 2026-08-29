@@ -2102,7 +2102,7 @@ export class UnitRepositoryAdapter implements UnitRepository {
 
   async update(id: UnitId, unit: Unit): Promise<Unit | null> {
     const doc = await this.model
-      .findByIdAndUpdate(id.value, this.toDocument(unit), { new: true })
+      .findByIdAndUpdate(id.value, this.toDocument(unit), { returnDocument: 'after' })
       .exec();
     return doc ? this.toDomain(doc) : null;
   }
@@ -3569,7 +3569,7 @@ export class DutyRepositoryAdapter implements DutyRepository {
 
   async update(id: DutyId, duty: Duty): Promise<Duty | null> {
     const doc = await this.model
-      .findByIdAndUpdate(id.value, this.toDocument(duty), { new: true })
+      .findByIdAndUpdate(id.value, this.toDocument(duty), { returnDocument: 'after' })
       .exec();
     return doc ? this.toDomain(doc) : null;
   }
