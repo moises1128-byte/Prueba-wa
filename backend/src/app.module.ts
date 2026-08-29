@@ -1,0 +1,30 @@
+import { ApolloDriver, type ApolloDriverConfig } from '@nestjs/apollo';
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { GraphQLModule } from '@nestjs/graphql';
+import { MongooseModule } from '@nestjs/mongoose';
+import { join } from 'node:path';
+import { AppController } from './app.controller.js';
+import { AppService } from './app.service.js';
+import { HealthResolver } from './health/health.resolver.js';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      sortSchema: true,
+    }),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        uri: config.getOrThrow<string>('MONGODB_URI'),
+      }),
+    }),
+  ],
+  controllers: [AppController],
+  providers: [AppService, HealthResolver],
+})
+export class AppModule {}
