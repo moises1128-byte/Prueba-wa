@@ -7,6 +7,7 @@ import { join } from 'node:path';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { HealthResolver } from './health/health.resolver.js';
+import { DomainError } from './shared/errors/domain-error.js';
 
 @Module({
   imports: [
@@ -15,6 +16,16 @@ import { HealthResolver } from './health/health.resolver.js';
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       sortSchema: true,
+      formatError: (formattedError, error) => {
+        const original = (error as { originalError?: unknown }).originalError;
+        if (original instanceof DomainError) {
+          return { message: original.message, extensions: { code: original.code } };
+        }
+        if (formattedError.extensions?.code === 'BAD_USER_INPUT') {
+          return formattedError;
+        }
+        return { message: 'Internal server error', extensions: { code: 'internalError' } };
+      },
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
