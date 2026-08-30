@@ -10,6 +10,7 @@ import { HealthResolver } from './health/health.resolver.js';
 import { DomainError } from './shared/errors/domain-error.js';
 import { RouteModule } from './modules/route/route.module.js';
 import { UnitModule } from './modules/unit/unit.module.js';
+import { DutyModule } from './modules/duty/duty.module.js';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { UnitModule } from './modules/unit/unit.module.js';
     }),
     RouteModule,
     UnitModule,
+    DutyModule,
   ],
   controllers: [AppController],
   providers: [AppService, HealthResolver],
