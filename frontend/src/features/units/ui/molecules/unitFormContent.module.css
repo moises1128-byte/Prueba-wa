@@ -1,0 +1,16 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  max-width: 320px;
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.error {
+  color: var(--color-error);
+  font-size: 0.875rem;
+}
