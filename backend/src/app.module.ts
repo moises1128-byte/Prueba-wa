@@ -9,6 +9,7 @@ import { AppService } from './app.service.js';
 import { HealthResolver } from './health/health.resolver.js';
 import { DomainError } from './shared/errors/domain-error.js';
 import { RouteModule } from './modules/route/route.module.js';
+import { UnitModule } from './modules/unit/unit.module.js';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { RouteModule } from './modules/route/route.module.js';
       }),
     }),
     RouteModule,
+    UnitModule,
   ],
   controllers: [AppController],
   providers: [AppService, HealthResolver],
