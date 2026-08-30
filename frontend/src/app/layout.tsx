@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
-import { AppApolloProvider } from '@/context/apolloProvider';
+import { AppApolloProvider } from '@/context/appApolloProvider';
 import { AppNav } from '@/shared/ui/molecules/appNav';
 import './globals.css';
 
