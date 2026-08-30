@@ -21,12 +21,18 @@ import { UnitModule } from './modules/unit/unit.module.js';
       formatError: (formattedError, error) => {
         const original = (error as { originalError?: unknown }).originalError;
         if (original instanceof DomainError) {
-          return { message: original.message, extensions: { code: original.code } };
+          return {
+            message: original.message,
+            extensions: { code: original.code },
+          };
         }
         if (formattedError.extensions?.code === 'BAD_USER_INPUT') {
           return formattedError;
         }
-        return { message: 'Internal server error', extensions: { code: 'internalError' } };
+        return {
+          message: 'Internal server error',
+          extensions: { code: 'internalError' },
+        };
       },
     }),
     MongooseModule.forRootAsync({

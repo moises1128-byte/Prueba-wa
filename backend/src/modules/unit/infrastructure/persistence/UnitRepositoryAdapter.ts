@@ -29,7 +29,9 @@ export class UnitRepositoryAdapter implements UnitRepository {
 
   async update(id: UnitId, unit: Unit): Promise<Unit | null> {
     const doc = await this.model
-      .findByIdAndUpdate(id.value, this.toDocument(unit), { returnDocument: 'after' })
+      .findByIdAndUpdate(id.value, this.toDocument(unit), {
+        returnDocument: 'after',
+      })
       .exec();
     return doc ? this.toDomain(doc) : null;
   }
