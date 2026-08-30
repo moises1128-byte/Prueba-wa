@@ -580,6 +580,30 @@ abstract port.
 
 ---
 
+### Avoiding circular cross-module dependencies
+
+When two modules each need something from the other (e.g. `duty` needs `route`/`unit` to validate
+references on create, but `route`/`unit` need `duty` to guard against deleting something still in
+use), don't reach for `forwardRef()`. Instead, identify which module can be the sole importer —
+usually the one that represents the "join"/dependent concept (here, `duty`, since a `Duty` only
+exists in relation to a `Route` and a `Unit`, never the reverse) — and move the
+otherwise-circular behavior into _that_ module:
+
+- `route`/`unit` keep a simple, duty-unaware delete use-case (`DeleteRouteUseCase`,
+  `DeleteUnitUseCase`), exported so `duty` can call it.
+- The GraphQL mutation that actually needs duty-awareness (`deleteRoute`, `deleteUnit`) is
+  resolved by a small `@Resolver()` class that lives _inside_ the `duty` module, injecting the
+  exported delete use-case plus `duty`'s own repository to run the guard check.
+
+This keeps the module import graph one-directional (`duty → route`, `duty → unit`, never the
+reverse), avoids `forwardRef()`'s initialization-order footguns, and only costs one thing: a
+GraphQL type's full mutation surface can be split across two modules' files. Name the resolver
+class to make that obvious (`RouteDutyIntegrationResolver`, not `RouteResolver2`), and say why in
+a doc comment. See `backend/src/modules/duty/infrastructure/graphql/RouteDutyIntegration.resolver.ts`
+for a worked example.
+
+---
+
 ## Adding a New Feature
 
 1. **Start in `domain/`** — model the entity, value objects, policies, domain errors. No infra.
