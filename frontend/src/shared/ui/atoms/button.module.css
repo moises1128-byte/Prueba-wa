@@ -1,0 +1,14 @@
+.button {
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  background: var(--color-brand-solid);
+  color: var(--color-on-brand);
+  cursor: pointer;
+  font: inherit;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
