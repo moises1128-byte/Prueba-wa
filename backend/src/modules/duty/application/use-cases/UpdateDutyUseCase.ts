@@ -4,6 +4,7 @@ import { DutyId } from '../../domain/value-objects/DutyId.js';
 import {
   DutyNotFoundError,
   DutyOverlapError,
+  DutyReservationLostError,
 } from '../../domain/errors/DutyErrors.js';
 import { DutyRepository } from '../ports/DutyRepository.js';
 import { RouteId } from '../../../route/domain/value-objects/RouteId.js';
@@ -65,18 +66,33 @@ export class UpdateDutyUseCase {
       updated.endsAt,
     );
     if (!reserved) {
-      // revert — restore the original window so the duty isn't silently left unprotected
-      await this.unitRepository.reserveWindow(
+      const reverted = await this.unitRepository.reserveWindow(
         existing.unitId,
         existing.id.value,
         existing.startsAt,
         existing.endsAt,
       );
+      if (!reverted) throw new DutyReservationLostError();
       throw new DutyOverlapError();
     }
 
-    const saved = await this.dutyRepository.update(dutyId, updated);
-    if (!saved) throw new DutyNotFoundError();
-    return saved;
+    try {
+      const saved = await this.dutyRepository.update(dutyId, updated);
+      if (!saved) throw new DutyNotFoundError();
+      return saved;
+    } catch (error) {
+      try {
+        await this.unitRepository.releaseWindow(updated.unitId, updated.id.value);
+        await this.unitRepository.reserveWindow(
+          existing.unitId,
+          existing.id.value,
+          existing.startsAt,
+          existing.endsAt,
+        );
+      } catch {
+        // best-effort rollback; the original error is what the caller needs to see
+      }
+      throw error;
+    }
   }
 }

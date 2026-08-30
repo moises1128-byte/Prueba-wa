@@ -109,4 +109,16 @@ describe('CreateDutyUseCase', () => {
     ).rejects.toThrow('db down');
     expect(unitRepository.releaseWindow).toHaveBeenCalledOnce();
   });
+
+  it('does not call releaseWindow when the window guard rejects the reservation', async () => {
+    vi.mocked(unitRepository.reserveWindow).mockResolvedValue(false);
+    await expect(
+      useCase.execute({
+        routeId: route.id.value,
+        unitId: unit.id.value,
+        ...input,
+      }),
+    ).rejects.toThrow(DutyOverlapError);
+    expect(unitRepository.releaseWindow).not.toHaveBeenCalled();
+  });
 });

@@ -52,7 +52,11 @@ export class CreateDutyUseCase {
     try {
       return await this.dutyRepository.create(duty);
     } catch (error) {
-      await this.unitRepository.releaseWindow(unitId, duty.id.value);
+      try {
+        await this.unitRepository.releaseWindow(unitId, duty.id.value);
+      } catch {
+        // best-effort rollback; the original persistence error is what the caller needs to see
+      }
       throw error;
     }
   }

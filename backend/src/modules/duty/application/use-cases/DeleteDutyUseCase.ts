@@ -16,8 +16,10 @@ export class DeleteDutyUseCase {
     const existing = await this.dutyRepository.findById(dutyId);
     if (!existing) throw new DutyNotFoundError();
 
-    await this.unitRepository.releaseWindow(existing.unitId, dutyId.value);
-    await this.dutyRepository.delete(dutyId);
-    return true;
+    const deleted = await this.dutyRepository.delete(dutyId);
+    if (deleted) {
+      await this.unitRepository.releaseWindow(existing.unitId, dutyId.value);
+    }
+    return deleted;
   }
 }

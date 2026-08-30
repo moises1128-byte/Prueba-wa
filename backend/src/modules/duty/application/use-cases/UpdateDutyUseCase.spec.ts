@@ -9,7 +9,9 @@ import { Unit } from '../../../unit/domain/entities/Unit.js';
 import {
   DutyOverlapError,
   DutyNotFoundError,
+  DutyReservationLostError,
 } from '../../domain/errors/DutyErrors.js';
+import { UnitNotFoundError } from '../../../unit/domain/errors/UnitErrors.js';
 
 describe('UpdateDutyUseCase', () => {
   let dutyRepository: DutyRepository;
@@ -103,5 +105,50 @@ describe('UpdateDutyUseCase', () => {
       existing.endsAt,
     );
     expect(dutyRepository.update).not.toHaveBeenCalled();
+  });
+
+  it('throws DutyReservationLostError when even the revert-reserve fails', async () => {
+    vi.mocked(unitRepository.reserveWindow)
+      .mockResolvedValueOnce(false) // new-window attempt fails
+      .mockResolvedValueOnce(false); // revert attempt ALSO fails
+
+    await expect(
+      useCase.execute(existing.id.value, {
+        endsAt: new Date('2026-01-01T20:00:00Z'),
+      }),
+    ).rejects.toThrow(DutyReservationLostError);
+    expect(dutyRepository.update).not.toHaveBeenCalled();
+  });
+
+  it('rolls back the new reservation and restores the old one when dutyRepository.update fails', async () => {
+    vi.mocked(dutyRepository.update).mockRejectedValue(new Error('db down'));
+
+    await expect(
+      useCase.execute(existing.id.value, {
+        endsAt: new Date('2026-01-01T20:00:00Z'),
+      }),
+    ).rejects.toThrow('db down');
+
+    expect(unitRepository.releaseWindow).toHaveBeenCalledWith(
+      unit.id,
+      existing.id.value,
+    );
+    expect(unitRepository.reserveWindow).toHaveBeenCalledTimes(2);
+    expect(unitRepository.reserveWindow).toHaveBeenLastCalledWith(
+      unit.id,
+      existing.id.value,
+      existing.startsAt,
+      existing.endsAt,
+    );
+  });
+
+  it('throws UnitNotFoundError when reassigning to a unit that does not exist', async () => {
+    vi.mocked(unitRepository.findById).mockImplementation(async (id) =>
+      id.equals(unit.id) ? unit : null,
+    );
+
+    await expect(
+      useCase.execute(existing.id.value, { unitId: 'missing-unit' }),
+    ).rejects.toThrow(UnitNotFoundError);
   });
 });
