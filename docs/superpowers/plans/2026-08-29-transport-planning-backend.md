@@ -42,6 +42,15 @@ plus `duty`'s own repository to run the guard check. This keeps the module graph
 - Integration tests (repository adapters, E2E) run against the real local MongoDB
   (`mongodb://localhost:27017/prueba_test` — a separate test database name so tests never touch
   dev data; see Task 4). If `mongod` isn't running, start it per `README.md`.
+- **Addendum (found during Task 8's review):** all integration test files share the one
+  `prueba_test` database, and each calls `connection.dropDatabase()` in `afterAll`. Vitest runs
+  test *files* in parallel by default, so once 2+ integration spec files exist (Route's from Task
+  4, Unit's from Task 8, Duty's coming in Task 12), one file's `dropDatabase()` can wipe data out
+  from under another file's still-running test. `backend/vitest.config.ts` needs
+  `test: { fileParallelism: false }` added (alongside the existing `globals`/`root`/`include`) to
+  force sequential file execution — confirmed to resolve it. At this project's scale (a handful of
+  integration files) the sequential slowdown is a non-issue; this is not a task-scoped fix, it's a
+  one-line addition to the shared config, applied once here rather than repeated per task.
 
 ---
 
