@@ -8,6 +8,7 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { HealthResolver } from './health/health.resolver.js';
 import { DomainError } from './shared/errors/domain-error.js';
+import { RouteModule } from './modules/route/route.module.js';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { DomainError } from './shared/errors/domain-error.js';
         uri: config.getOrThrow<string>('MONGODB_URI'),
       }),
     }),
+    RouteModule,
   ],
   controllers: [AppController],
   providers: [AppService, HealthResolver],
