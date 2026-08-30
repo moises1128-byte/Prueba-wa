@@ -82,7 +82,10 @@ export class UpdateDutyUseCase {
       return saved;
     } catch (error) {
       try {
-        await this.unitRepository.releaseWindow(updated.unitId, updated.id.value);
+        await this.unitRepository.releaseWindow(
+          updated.unitId,
+          updated.id.value,
+        );
         await this.unitRepository.reserveWindow(
           existing.unitId,
           existing.id.value,
