@@ -1,0 +1,23 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  max-width: 480px;
+}
+
+.points {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.pointRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: var(--space-sm);
+}
+
+.error {
+  color: var(--color-error);
+  font-size: 0.875rem;
+}
