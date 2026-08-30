@@ -1031,6 +1031,29 @@ Note: `RouteResolver` deliberately has **no `deleteRoute` mutation** — that mu
 implemented in the `duty` module (Task 13), because rejecting the deletion when duties exist
 requires knowledge only the `duty` module has. See the plan header's Architecture note.
 
+**Addendum (found during Task 5's review — apply once, here, not in later tasks):** this is the
+first task to add `class-validator`/`class-transformer` decorators to an `@InputType()`. Two
+things the original plan text omitted:
+
+1. Install the packages: `cd backend && pnpm add class-validator class-transformer`.
+2. Register a global `ValidationPipe` in `backend/src/main.ts` — without it, every decorator added
+   below (`@IsNumber()`, `@ArrayNotEmpty()`, etc., here and in every later task's inputs) is inert:
+
+```typescript
+// backend/src/main.ts
+import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
+import { AppModule } from './app.module.js';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
+  await app.enableCors();
+  await app.listen(process.env.PORT ?? 3001);
+}
+await bootstrap();
+```
+
 - [ ] **Step 1: Write the failing test**
 
 ```typescript
