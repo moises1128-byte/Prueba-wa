@@ -47,7 +47,7 @@ export const DUTIES_QUERY = gql`
 
 ```typescript
 // application/queries/useDuties.query.ts
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 import { DUTIES_QUERY } from '../../infrastructure/duties.graphql';
 import { toDutyDomain } from '../../infrastructure/duties.transform';
 
@@ -101,7 +101,7 @@ Use `skip` instead of an `if` before the hook call — hooks must run unconditio
 
 ```typescript
 // application/mutations/useCreateDuty.mutation.ts
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import {
   CREATE_DUTY_MUTATION,
   DUTIES_QUERY,

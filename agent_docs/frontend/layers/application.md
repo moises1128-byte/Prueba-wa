@@ -33,7 +33,7 @@ nothing above this layer should see the raw GraphQL shape.
 
 ```typescript
 // features/duties/application/queries/useDuties.query.ts
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 import { DUTIES_QUERY } from '../../infrastructure/duties.graphql';
 import { toDutyDomain } from '../../infrastructure/duties.transform';
 import type { Duty } from '../../domain/duty.model';
@@ -67,7 +67,7 @@ Wrap Apollo Client's `useMutation`, including cache updates.
 
 ```typescript
 // features/duties/application/mutations/useCreateDuty.mutation.ts
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import {
   CREATE_DUTY_MUTATION,
   DUTIES_QUERY,

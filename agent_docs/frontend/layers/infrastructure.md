@@ -133,9 +133,12 @@ second consumer needs a slightly different shape, or the moment any date/enum co
 
 One client for the whole app, created once:
 
+> Apollo Client v4 split its exports across subpaths — the root package no longer re-exports React bindings or link constructors.
+
 ```typescript
 // lib/apolloClient.ts
-import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client';
+import { ApolloClient, InMemoryCache } from '@apollo/client';
+import { HttpLink } from '@apollo/client/link/http';
 
 export const apolloClient = new ApolloClient({
   link: new HttpLink({ uri: process.env.NEXT_PUBLIC_GRAPHQL_URL }),
@@ -149,7 +152,7 @@ Wired into the tree once, near the root:
 // context/apolloProvider.tsx
 'use client';
 
-import { ApolloProvider } from '@apollo/client';
+import { ApolloProvider } from '@apollo/client/react';
 import { apolloClient } from '@/lib/apolloClient';
 
 export function AppApolloProvider({ children }: { children: React.ReactNode }) {

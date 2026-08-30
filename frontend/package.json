@@ -8,21 +8,38 @@
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write \"src/**/*.{ts,tsx}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx}\""
+    "format:check": "prettier --check \"src/**/*.{ts,tsx}\"",
+    "test": "vitest run"
   },
   "dependencies": {
+    "@apollo/client": "^4.2.12",
+    "@hookform/resolvers": "^5.9.1",
+    "graphql": "^17.0.2",
+    "leaflet": "^1.9.4",
     "next": "16.3.3",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "react-hook-form": "^7.87.0",
+    "react-leaflet": "^5.0.0",
+    "zod": "^4.5.4"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.6",
+    "@types/leaflet": "^1.9.22",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^6.1.1",
     "eslint": "^9",
     "eslint-config-next": "16.3.3",
     "eslint-config-prettier": "^10.1.8",
-    "typescript": "^5"
+    "jsdom": "^30.0.1",
+    "typescript": "^5",
+    "vite": "^8.2.2",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.11"
   },
   "packageManager": "pnpm@11.24.0"
 }

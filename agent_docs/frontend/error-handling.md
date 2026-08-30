@@ -30,12 +30,17 @@ export function useDuties() {
 }
 ```
 
-`ApolloError` distinguishes network errors (`error.networkError`) from GraphQL errors returned by
-the server (`error.graphQLErrors`) — each item in `graphQLErrors` carries `extensions.code`, the
-same domain error code the backend attaches (see `agent_docs/backend/error-handling.md`).
+Apollo Client v4 replaced the monolithic `ApolloError` with distinct error classes exported from
+`@apollo/client/errors`. A GraphQL error returned in the server response's `errors` array arrives
+as `CombinedGraphQLErrors` — check with its `.is()` guard, then read `.errors[0]?.extensions?.code`,
+the same domain error code the backend attaches (see `agent_docs/backend/error-handling.md`). Use
+the shared `getGraphQLErrorCode()` helper (`frontend/src/shared/utils/getGraphQLErrorCode.ts`)
+instead of repeating this check inline.
 
 ```typescript
-if (error?.graphQLErrors[0]?.extensions?.code === 'dutyOverlap') {
+import { getGraphQLErrorCode } from '@/shared/utils/getGraphQLErrorCode';
+
+if (getGraphQLErrorCode(error) === 'dutyOverlap') {
   // matched a specific backend domain error
 }
 ```
@@ -54,9 +59,7 @@ export async function createDutyFlowUseCase(
     const result = await deps.createDuty(input);
     return { ok: true, data: result.data.createDuty };
   } catch (error) {
-    const code = isApolloError(error)
-      ? error.graphQLErrors[0]?.extensions?.code
-      : undefined;
+    const code = getGraphQLErrorCode(error);
     if (code === 'dutyOverlap')
       return { ok: false, error: 'This duty overlaps an existing one.' };
     return { ok: false, error: 'Failed to create duty. Please try again.' };

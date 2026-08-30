@@ -88,7 +88,7 @@ Don't mock:
 
 ```tsx
 // application/useCreateDuty.mutation.test.tsx
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { CREATE_DUTY_MUTATION } from '../../infrastructure/duties.graphql';
