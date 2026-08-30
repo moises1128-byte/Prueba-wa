@@ -44,7 +44,7 @@ plus `duty`'s own repository to run the guard check. This keeps the module graph
   dev data; see Task 4). If `mongod` isn't running, start it per `README.md`.
 - **Addendum (found during Task 8's review):** all integration test files share the one
   `prueba_test` database, and each calls `connection.dropDatabase()` in `afterAll`. Vitest runs
-  test *files* in parallel by default, so once 2+ integration spec files exist (Route's from Task
+  test _files_ in parallel by default, so once 2+ integration spec files exist (Route's from Task
   4, Unit's from Task 8, Duty's coming in Task 12), one file's `dropDatabase()` can wipe data out
   from under another file's still-running test. `backend/vitest.config.ts` needs
   `test: { fileParallelism: false }` added (alongside the existing `globals`/`root`/`include`) to
@@ -2134,7 +2134,9 @@ export class UnitRepositoryAdapter implements UnitRepository {
 
   async update(id: UnitId, unit: Unit): Promise<Unit | null> {
     const doc = await this.model
-      .findByIdAndUpdate(id.value, this.toDocument(unit), { returnDocument: 'after' })
+      .findByIdAndUpdate(id.value, this.toDocument(unit), {
+        returnDocument: 'after',
+      })
       .exec();
     return doc ? this.toDomain(doc) : null;
   }
@@ -3379,6 +3381,192 @@ git add backend/src/modules/duty/application
 git commit -m "feat(backend): add Duty application layer with cross-module validation and the overlap guard integration"
 ```
 
+**Addendum (found during Task 11's review — two Important failure-path gaps in the code above):**
+
+1. **`UpdateDutyUseCase`'s revert-on-conflict silently discards its own result.** If the new window is rejected and the revert-reserve of the _original_ window ALSO fails (a concurrent create/update grabbed the just-freed slot in the gap between release and revert), the duty is left existing with **no** reserved window at all — invisible, and exactly the state the whole guard exists to prevent. It must check the revert's return value and, if that also fails, throw a distinct error rather than proceeding as if a normal conflict occurred.
+2. **`UpdateDutyUseCase`'s `dutyRepository.update()` call has no rollback**, unlike `CreateDutyUseCase`'s symmetric `dutyRepository.create()` call. If persistence fails (or returns `null`), the code exits with the OLD window already released and the NEW window reserved, while the persisted duty still holds its old times — a duty unprotected by any reservation, plus a phantom reservation blocking an unrelated slot.
+
+Also fold in three cheap, zero-risk hardening fixes found in the same review pass: `CreateDutyUseCase`'s rollback should not let a `releaseWindow` failure mask the original persistence error; `DeleteDutyUseCase` should delete-then-release (not release-then-delete) so a failed delete never strands a released reservation, and should return the repository's actual boolean instead of hardcoding `true`.
+
+Add one error class:
+
+```typescript
+// backend/src/modules/duty/domain/errors/DutyErrors.ts — add this class
+export class DutyReservationLostError extends DomainError {
+  readonly code = 'dutyReservationLost';
+  constructor() {
+    super(
+      'Failed to update this duty: the original time window could not be restored after a conflict. Please retry.',
+    );
+  }
+}
+```
+
+Replace `CreateDutyUseCase.ts`'s rollback try/catch with:
+
+```typescript
+try {
+  return await this.dutyRepository.create(duty);
+} catch (error) {
+  try {
+    await this.unitRepository.releaseWindow(unitId, duty.id.value);
+  } catch {
+    // best-effort rollback; the original persistence error is what the caller needs to see
+  }
+  throw error;
+}
+```
+
+Replace the whole body of `UpdateDutyUseCase.execute()` with:
+
+```typescript
+  async execute(id: string, input: UpdateDutyInput): Promise<Duty> {
+    const dutyId = DutyId.restore(id);
+    const existing = await this.dutyRepository.findById(dutyId);
+    if (!existing) throw new DutyNotFoundError();
+
+    const nextRouteId = input.routeId ? RouteId.restore(input.routeId) : existing.routeId;
+    const nextUnitId = input.unitId ? UnitId.restore(input.unitId) : existing.unitId;
+
+    if (input.routeId) {
+      const route = await this.routeRepository.findById(nextRouteId);
+      if (!route) throw new RouteNotFoundError();
+    }
+    if (input.unitId) {
+      const unit = await this.unitRepository.findById(nextUnitId);
+      if (!unit) throw new UnitNotFoundError();
+    }
+
+    const updated = existing.update({
+      routeId: nextRouteId,
+      unitId: nextUnitId,
+      startsAt: input.startsAt,
+      endsAt: input.endsAt,
+    });
+
+    await this.unitRepository.releaseWindow(existing.unitId, existing.id.value);
+
+    const reserved = await this.unitRepository.reserveWindow(
+      updated.unitId,
+      updated.id.value,
+      updated.startsAt,
+      updated.endsAt,
+    );
+    if (!reserved) {
+      const reverted = await this.unitRepository.reserveWindow(
+        existing.unitId,
+        existing.id.value,
+        existing.startsAt,
+        existing.endsAt,
+      );
+      if (!reverted) throw new DutyReservationLostError();
+      throw new DutyOverlapError();
+    }
+
+    try {
+      const saved = await this.dutyRepository.update(dutyId, updated);
+      if (!saved) throw new DutyNotFoundError();
+      return saved;
+    } catch (error) {
+      try {
+        await this.unitRepository.releaseWindow(updated.unitId, updated.id.value);
+        await this.unitRepository.reserveWindow(
+          existing.unitId,
+          existing.id.value,
+          existing.startsAt,
+          existing.endsAt,
+        );
+      } catch {
+        // best-effort rollback; the original error is what the caller needs to see
+      }
+      throw error;
+    }
+  }
+```
+
+Replace the whole body of `DeleteDutyUseCase.execute()` with:
+
+```typescript
+  async execute(id: string): Promise<boolean> {
+    const dutyId = DutyId.restore(id);
+    const existing = await this.dutyRepository.findById(dutyId);
+    if (!existing) throw new DutyNotFoundError();
+
+    const deleted = await this.dutyRepository.delete(dutyId);
+    if (deleted) {
+      await this.unitRepository.releaseWindow(existing.unitId, dutyId.value);
+    }
+    return deleted;
+  }
+```
+
+Add these test cases (append to the existing spec files — do not remove any existing test):
+
+```typescript
+// UpdateDutyUseCase.spec.ts — new test: revert itself fails
+it('throws DutyReservationLostError when even the revert-reserve fails', async () => {
+  vi.mocked(unitRepository.reserveWindow)
+    .mockResolvedValueOnce(false) // new-window attempt fails
+    .mockResolvedValueOnce(false); // revert attempt ALSO fails
+
+  await expect(
+    useCase.execute(existing.id.value, {
+      endsAt: new Date('2026-01-01T20:00:00Z'),
+    }),
+  ).rejects.toThrow(DutyReservationLostError);
+  expect(dutyRepository.update).not.toHaveBeenCalled();
+});
+
+// UpdateDutyUseCase.spec.ts — new test: persistence failure rolls back
+it('rolls back the new reservation and restores the old one when dutyRepository.update fails', async () => {
+  vi.mocked(dutyRepository.update).mockRejectedValue(new Error('db down'));
+
+  await expect(
+    useCase.execute(existing.id.value, {
+      endsAt: new Date('2026-01-01T20:00:00Z'),
+    }),
+  ).rejects.toThrow('db down');
+
+  expect(unitRepository.releaseWindow).toHaveBeenCalledWith(
+    unit.id,
+    existing.id.value,
+  );
+  expect(unitRepository.reserveWindow).toHaveBeenCalledTimes(2);
+  expect(unitRepository.reserveWindow).toHaveBeenLastCalledWith(
+    unit.id,
+    existing.id.value,
+    existing.startsAt,
+    existing.endsAt,
+  );
+});
+
+// UpdateDutyUseCase.spec.ts — new test: unitId re-validation
+it('throws UnitNotFoundError when reassigning to a unit that does not exist', async () => {
+  vi.mocked(unitRepository.findById).mockImplementation(async (id) =>
+    id.equals(unit.id) ? unit : null,
+  );
+
+  await expect(
+    useCase.execute(existing.id.value, { unitId: 'missing-unit' }),
+  ).rejects.toThrow(UnitNotFoundError);
+});
+
+// CreateDutyUseCase.spec.ts — strengthen the existing overlap test
+it('does not call releaseWindow when the window guard rejects the reservation', async () => {
+  vi.mocked(unitRepository.reserveWindow).mockResolvedValue(false);
+  await expect(
+    useCase.execute({
+      routeId: route.id.value,
+      unitId: unit.id.value,
+      ...input,
+    }),
+  ).rejects.toThrow(DutyOverlapError);
+  expect(unitRepository.releaseWindow).not.toHaveBeenCalled();
+});
+```
+
+(`UpdateDutyUseCase.spec.ts` will need `UnitNotFoundError` imported from `../../../unit/domain/errors/UnitErrors.js` and `DutyReservationLostError` from `../../domain/errors/DutyErrors.js` if not already present.)
+
 ---
 
 ### Task 12: Duty infrastructure — persistence
@@ -3601,7 +3789,9 @@ export class DutyRepositoryAdapter implements DutyRepository {
 
   async update(id: DutyId, duty: Duty): Promise<Duty | null> {
     const doc = await this.model
-      .findByIdAndUpdate(id.value, this.toDocument(duty), { returnDocument: 'after' })
+      .findByIdAndUpdate(id.value, this.toDocument(duty), {
+        returnDocument: 'after',
+      })
       .exec();
     return doc ? this.toDomain(doc) : null;
   }
