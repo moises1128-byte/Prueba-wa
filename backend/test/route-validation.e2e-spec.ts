@@ -1,22 +1,23 @@
 import { Test, type TestingModule } from '@nestjs/testing';
-import { ValidationPipe, type INestApplication } from '@nestjs/common';
+import type { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import type { App } from 'supertest/types';
 import { describe, beforeAll, afterAll, it, expect } from 'vitest';
 import { AppModule } from '../src/app.module.js';
+import { createGlobalValidationPipe } from '../src/shared/validation-pipe.js';
 
 describe('Route input validation (e2e)', () => {
   let app: INestApplication<App>;
 
   beforeAll(async () => {
+    process.env.MONGODB_URI =
+      process.env.MONGODB_TEST_URI ?? 'mongodb://localhost:27017/prueba_test';
     const module: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
     app = module.createNestApplication();
-    app.useGlobalPipes(
-      new ValidationPipe({ transform: true, whitelist: true }),
-    );
+    app.useGlobalPipes(createGlobalValidationPipe());
     await app.init();
   });
 
@@ -59,6 +60,8 @@ describe('Route input validation (e2e)', () => {
     expect(response.body.data).toBeNull();
     expect(response.body.errors).toBeDefined();
     expect(response.body.errors.length).toBeGreaterThan(0);
+    expect(response.body.errors[0].extensions.code).toBe('badUserInput');
+    expect(response.body.errors[0].message).not.toBe('Internal server error');
     await expectNoRouteNamed(uniqueName);
   });
 
@@ -90,6 +93,8 @@ describe('Route input validation (e2e)', () => {
     expect(response.body.data).toBeNull();
     expect(response.body.errors).toBeDefined();
     expect(response.body.errors.length).toBeGreaterThan(0);
+    expect(response.body.errors[0].extensions.code).toBe('badUserInput');
+    expect(response.body.errors[0].message).toContain('at least one point');
     await expectNoRouteNamed(uniqueName);
   });
 });

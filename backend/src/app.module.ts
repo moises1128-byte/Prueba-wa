@@ -27,8 +27,11 @@ import { DutyModule } from './modules/duty/duty.module.js';
             extensions: { code: original.code },
           };
         }
-        if (formattedError.extensions?.code === 'BAD_USER_INPUT') {
-          return formattedError;
+        if (formattedError.extensions?.code === 'badUserInput') {
+          return {
+            message: formattedError.message,
+            extensions: { code: 'badUserInput' },
+          };
         }
         return {
           message: 'Internal server error',

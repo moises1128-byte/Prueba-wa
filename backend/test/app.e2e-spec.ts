@@ -8,6 +8,8 @@ describe('AppController (e2e)', () => {
   let app: INestApplication<App>;
 
   beforeEach(async () => {
+    process.env.MONGODB_URI =
+      process.env.MONGODB_TEST_URI ?? 'mongodb://localhost:27017/prueba_test';
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();

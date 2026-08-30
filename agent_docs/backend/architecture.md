@@ -416,6 +416,34 @@ export class DutyRepositoryAdapter implements DutyRepository {
 Hard deletes are fine for this MVP (no soft-delete / `isActive` convention) unless a spec
 explicitly asks for recoverable records — don't add that ceremony speculatively.
 
+### The atomic overlap guard (`Unit.busyWindows`)
+
+The invariant "a unit never has two overlapping duties, even under concurrent requests" is
+enforced entirely inside `UnitRepositoryAdapter` — not in the domain or application layer — via a
+single atomic MongoDB `findOneAndUpdate`, not a transaction or a lock:
+
+```typescript
+this.model.findOneAndUpdate(
+  {
+    _id: unitId.value,
+    busyWindows: {
+      $not: {
+        $elemMatch: { startsAt: { $lt: endsAt }, endsAt: { $gt: startsAt } },
+      },
+    },
+  },
+  { $push: { busyWindows: { dutyId, startsAt, endsAt } } },
+);
+```
+
+`busyWindows` is a Mongoose-only field on the `Unit` document — it is never part of the domain
+`Unit` entity or the GraphQL `Unit` type. A single `findOneAndUpdate` is atomic at the
+storage-engine level: no other write can interleave between the overlap check and the push for
+that document, which is what makes this safe under concurrency without needing a replica set or
+`@nestjs/mongoose` transactions (the local MongoDB here is standalone). `CreateDutyUseCase` calls
+this before persisting the `Duty` document itself; a `false` return means "conflict" and the use
+case throws `DutyOverlapError` without touching the `duty` collection.
+
 ### GraphQL (Presentation)
 
 Code-first GraphQL: `@ObjectType()` for output shapes, `@InputType()` for arguments, `@Resolver()`

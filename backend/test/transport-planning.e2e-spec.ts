@@ -210,4 +210,83 @@ describe('Transport planning (e2e)', () => {
     expect(succeeded).toHaveLength(1);
     expect(conflicted).toHaveLength(4);
   });
+
+  it('updateDuty moves the unit reservation: old window frees, new window blocks', async () => {
+    const routeResponse = await graphql(
+      `
+        mutation ($input: CreateRouteInput!) {
+          createRoute(input: $input) {
+            id
+          }
+        }
+      `,
+      { input: { points: [{ lat: 0, lng: 0 }] } },
+    );
+    const routeId = routeResponse.body.data.createRoute.id;
+
+    const unitResponse = await graphql(
+      `
+        mutation ($input: CreateUnitInput!) {
+          createUnit(input: $input) {
+            id
+          }
+        }
+      `,
+      { input: { name: 'ABC-123', driverName: 'Jane Doe' } },
+    );
+    const unitId = unitResponse.body.data.createUnit.id;
+
+    const createDutyMutation = `mutation($input: CreateDutyInput!) { createDuty(input: $input) { id } }`;
+    const created = await graphql(createDutyMutation, {
+      input: {
+        routeId,
+        unitId,
+        startsAt: '2026-01-01T08:00:00.000Z',
+        endsAt: '2026-01-01T16:00:00.000Z',
+      },
+    });
+    const dutyId = created.body.data.createDuty.id;
+
+    const updateResponse = await graphql(
+      `
+        mutation ($id: ID!, $input: UpdateDutyInput!) {
+          updateDuty(id: $id, input: $input) {
+            id
+          }
+        }
+      `,
+      {
+        id: dutyId,
+        input: {
+          startsAt: '2026-01-02T08:00:00.000Z',
+          endsAt: '2026-01-02T16:00:00.000Z',
+        },
+      },
+    );
+    expect(updateResponse.body.data.updateDuty.id).toBe(dutyId);
+
+    // The OLD window is now free.
+    const oldWindowDuty = await graphql(createDutyMutation, {
+      input: {
+        routeId,
+        unitId,
+        startsAt: '2026-01-01T08:00:00.000Z',
+        endsAt: '2026-01-01T16:00:00.000Z',
+      },
+    });
+    expect(oldWindowDuty.body.data.createDuty).toBeTruthy();
+
+    // The NEW window is occupied.
+    const newWindowConflict = await graphql(createDutyMutation, {
+      input: {
+        routeId,
+        unitId,
+        startsAt: '2026-01-02T12:00:00.000Z',
+        endsAt: '2026-01-02T20:00:00.000Z',
+      },
+    });
+    expect(newWindowConflict.body.errors[0].extensions.code).toBe(
+      'dutyOverlap',
+    );
+  });
 });

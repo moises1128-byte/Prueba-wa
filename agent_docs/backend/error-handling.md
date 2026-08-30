@@ -104,10 +104,13 @@ Resulting client-visible shape:
 ## Validation errors (GraphQL input)
 
 Input validation (`class-validator` on `@InputType()` fields) is handled by NestJS's global
-`ValidationPipe` before the resolver method runs — it throws before your code sees the request,
-and Apollo formats it as a normal GraphQL error with `extensions.code: 'BAD_USER_INPUT'`. You
-don't need a `DomainError` for "this field is required" — that's shape validation, not a business
-rule.
+`ValidationPipe`, configured in `backend/src/shared/validation-pipe.ts`, before the resolver
+method runs. Its `exceptionFactory` throws a `GraphQLError` directly with
+`extensions.code: 'badUserInput'` and the first constraint violation's message (recursing into
+nested `@ValidateNested()` array elements, e.g. a single point's out-of-range `lat`), so
+`formatError` in `app.module.ts` passes it straight through instead of falling back to a generic
+internal-error response. You don't need a `DomainError` for "this field is required" — that's
+shape validation, not a business rule.
 
 ## Checklist for a new domain error
 

@@ -4,7 +4,6 @@ import { randomUUID } from 'node:crypto';
 import { UnitRepositoryAdapter } from './UnitRepositoryAdapter.js';
 import { UnitDocument, UnitSchema } from './unit.schema.js';
 import { Unit } from '../../domain/entities/Unit.js';
-import { UnitId } from '../../domain/value-objects/UnitId.js';
 
 describe('UnitRepositoryAdapter', () => {
   let connection: Connection;
@@ -142,6 +141,25 @@ describe('UnitRepositoryAdapter', () => {
 
       const found = await adapter.findById(unit.id);
       expect(found).not.toBeNull();
+    });
+
+    it('update() preserves busyWindows reserved via reserveWindow', async () => {
+      const unit = Unit.create({ name: 'ABC-123', driverName: 'Jane Doe' });
+      await adapter.create(unit);
+
+      const dutyId = randomUUID();
+      const start = new Date('2026-01-01T08:00:00Z');
+      const end = new Date('2026-01-01T16:00:00Z');
+      await adapter.reserveWindow(unit.id, dutyId, start, end);
+
+      const renamed = unit.update({ name: 'XYZ-999' });
+      await adapter.update(unit.id, renamed);
+
+      const raw = await connection
+        .collection('units')
+        .findOne({ _id: unit.id.value });
+      expect(raw?.busyWindows).toHaveLength(1);
+      expect(raw?.busyWindows[0].dutyId).toBe(dutyId);
     });
   });
 });

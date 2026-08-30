@@ -142,6 +142,17 @@ describe('UpdateDutyUseCase', () => {
     );
   });
 
+  it('does not touch the window reservation when neither unit nor window changes', async () => {
+    const newRoute = Route.create({ points: [] });
+    vi.mocked(routeRepository.findById).mockResolvedValue(newRoute);
+
+    await useCase.execute(existing.id.value, { routeId: newRoute.id.value });
+
+    expect(unitRepository.releaseWindow).not.toHaveBeenCalled();
+    expect(unitRepository.reserveWindow).not.toHaveBeenCalled();
+    expect(dutyRepository.update).toHaveBeenCalledOnce();
+  });
+
   it('throws UnitNotFoundError when reassigning to a unit that does not exist', async () => {
     vi.mocked(unitRepository.findById).mockImplementation(async (id) =>
       id.equals(unit.id) ? unit : null,

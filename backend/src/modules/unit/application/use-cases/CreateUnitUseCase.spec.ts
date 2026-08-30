@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { CreateUnitUseCase } from './CreateUnitUseCase.js';
 import type { UnitRepository } from '../ports/UnitRepository.js';
 

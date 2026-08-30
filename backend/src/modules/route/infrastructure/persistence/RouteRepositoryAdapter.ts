@@ -35,7 +35,9 @@ export class RouteRepositoryAdapter implements RouteRepository {
 
   async update(id: RouteId, route: Route): Promise<Route | null> {
     const doc = await this.model
-      .findByIdAndUpdate(id.value, this.toDocument(route), { new: true })
+      .findByIdAndUpdate(id.value, this.toDocument(route), {
+        returnDocument: 'after',
+      })
       .exec();
     return doc ? this.toDomain(doc) : null;
   }

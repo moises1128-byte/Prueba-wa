@@ -57,23 +57,33 @@ export class UpdateDutyUseCase {
       endsAt: input.endsAt,
     });
 
-    await this.unitRepository.releaseWindow(existing.unitId, existing.id.value);
+    const windowUnchanged =
+      nextUnitId.equals(existing.unitId) &&
+      updated.startsAt.getTime() === existing.startsAt.getTime() &&
+      updated.endsAt.getTime() === existing.endsAt.getTime();
 
-    const reserved = await this.unitRepository.reserveWindow(
-      updated.unitId,
-      updated.id.value,
-      updated.startsAt,
-      updated.endsAt,
-    );
-    if (!reserved) {
-      const reverted = await this.unitRepository.reserveWindow(
+    if (!windowUnchanged) {
+      await this.unitRepository.releaseWindow(
         existing.unitId,
         existing.id.value,
-        existing.startsAt,
-        existing.endsAt,
       );
-      if (!reverted) throw new DutyReservationLostError();
-      throw new DutyOverlapError();
+
+      const reserved = await this.unitRepository.reserveWindow(
+        updated.unitId,
+        updated.id.value,
+        updated.startsAt,
+        updated.endsAt,
+      );
+      if (!reserved) {
+        const reverted = await this.unitRepository.reserveWindow(
+          existing.unitId,
+          existing.id.value,
+          existing.startsAt,
+          existing.endsAt,
+        );
+        if (!reverted) throw new DutyReservationLostError();
+        throw new DutyOverlapError();
+      }
     }
 
     try {
@@ -81,19 +91,21 @@ export class UpdateDutyUseCase {
       if (!saved) throw new DutyNotFoundError();
       return saved;
     } catch (error) {
-      try {
-        await this.unitRepository.releaseWindow(
-          updated.unitId,
-          updated.id.value,
-        );
-        await this.unitRepository.reserveWindow(
-          existing.unitId,
-          existing.id.value,
-          existing.startsAt,
-          existing.endsAt,
-        );
-      } catch {
-        // best-effort rollback; the original error is what the caller needs to see
+      if (!windowUnchanged) {
+        try {
+          await this.unitRepository.releaseWindow(
+            updated.unitId,
+            updated.id.value,
+          );
+          await this.unitRepository.reserveWindow(
+            existing.unitId,
+            existing.id.value,
+            existing.startsAt,
+            existing.endsAt,
+          );
+        } catch {
+          // best-effort rollback; the original error is what the caller needs to see
+        }
       }
       throw error;
     }
