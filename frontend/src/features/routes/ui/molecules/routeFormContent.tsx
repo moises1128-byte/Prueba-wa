@@ -8,13 +8,11 @@ import styles from './routeFormContent.module.css';
 
 interface RouteFormContentProps {
   disabled: boolean;
-  error?: string;
   submitLabel: string;
 }
 
 export function RouteFormContent({
   disabled,
-  error,
   submitLabel,
 }: RouteFormContentProps) {
   const {
@@ -29,7 +27,7 @@ export function RouteFormContent({
       <Input
         {...register('name')}
         disabled={disabled}
-        placeholder="Route name (optional)"
+        placeholder="Nombre de la ruta (opcional)"
       />
       <div className={styles.points}>
         {fields.map((field, index) => {
@@ -46,26 +44,26 @@ export function RouteFormContent({
                   disabled={disabled}
                   type="number"
                   step="any"
-                  placeholder="Latitude"
+                  placeholder="Latitud"
                 />
                 <Input
                   {...register(`points.${index}.lng`, { valueAsNumber: true })}
                   disabled={disabled}
                   type="number"
                   step="any"
-                  placeholder="Longitude"
+                  placeholder="Longitud"
                 />
                 <Input
                   {...register(`points.${index}.name`)}
                   disabled={disabled}
-                  placeholder="Point name (optional)"
+                  placeholder="Nombre del punto (opcional)"
                 />
                 <Button
                   type="button"
                   disabled={disabled || fields.length === 1}
                   onClick={() => remove(index)}
                 >
-                  Remove
+                  Quitar
                 </Button>
               </div>
               {pointErrors?.lat ? (
@@ -86,9 +84,8 @@ export function RouteFormContent({
         disabled={disabled}
         onClick={() => append({ lat: 0, lng: 0, name: '' })}
       >
-        Add point
+        Agregar punto
       </Button>
-      {error ? <p className={styles.error}>{error}</p> : null}
       <Button type="submit" disabled={disabled}>
         {submitLabel}
       </Button>

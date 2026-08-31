@@ -2,15 +2,15 @@ import { z } from 'zod';
 
 export const dutyFormDefinition = z
   .object({
-    unitId: z.string().min(1, 'Unit is required'),
-    startsAt: z.string().min(1, 'Start time is required'),
-    endsAt: z.string().min(1, 'End time is required'),
+    unitId: z.string().min(1, 'La unidad es obligatoria'),
+    startsAt: z.string().min(1, 'La hora de inicio es obligatoria'),
+    endsAt: z.string().min(1, 'La hora de fin es obligatoria'),
   })
   .superRefine((value, ctx) => {
     if (new Date(value.endsAt) <= new Date(value.startsAt)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'End time must be after start time',
+        message: 'La hora de fin debe ser posterior a la de inicio',
         path: ['endsAt'],
       });
     }

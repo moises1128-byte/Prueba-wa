@@ -19,10 +19,10 @@ export function DutyRow({ duty, onEdit, onDelete }: DutyRowProps) {
       </span>
       <div className={styles.actions}>
         <Button type="button" onClick={onEdit}>
-          Edit
+          Editar
         </Button>
         <Button type="button" onClick={onDelete}>
-          Delete
+          Eliminar
         </Button>
       </div>
     </div>

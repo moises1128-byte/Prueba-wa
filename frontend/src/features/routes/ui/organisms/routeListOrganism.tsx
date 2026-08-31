@@ -11,8 +11,8 @@ export function RouteListOrganism() {
   const { data, loading, error } = useRoutes();
 
   if (loading) return <Spinner />;
-  if (error) return <ErrorState message="Could not load routes" />;
-  if (!data?.length) return <EmptyState message="No routes yet" />;
+  if (error) return <ErrorState message="No se pudieron cargar las rutas" />;
+  if (!data?.length) return <EmptyState message="Todavía no hay rutas" />;
 
   return (
     <div className={styles.list}>

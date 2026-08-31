@@ -5,8 +5,8 @@ import styles from './appNav.module.css';
 export function AppNav() {
   return (
     <nav className={styles.nav}>
-      <Link href={routeBuilders.routes()}>Routes</Link>
-      <Link href={routeBuilders.units()}>Units</Link>
+      <Link href={routeBuilders.routes()}>Rutas</Link>
+      <Link href={routeBuilders.units()}>Unidades</Link>
     </nav>
   );
 }

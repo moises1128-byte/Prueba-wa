@@ -10,9 +10,9 @@ interface RouteCardProps {
 export function RouteCard({ route }: RouteCardProps) {
   return (
     <Link href={routeBuilders.routeDetail(route.id)} className={styles.card}>
-      <span className={styles.name}>{route.name ?? 'Unnamed route'}</span>
+      <span className={styles.name}>{route.name ?? 'Ruta sin nombre'}</span>
       <span className={styles.meta}>
-        {route.pointCount} points · {route.dutyCount} duties
+        {route.pointCount} puntos · {route.dutyCount} duties
       </span>
     </Link>
   );

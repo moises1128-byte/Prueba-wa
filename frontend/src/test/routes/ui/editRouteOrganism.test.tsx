@@ -21,7 +21,7 @@ describe('EditRouteOrganism', () => {
         <EditRouteOrganism routeId="missing" />
       </MockedProvider>,
     );
-    expect(await screen.findByText('Route not found')).toBeInTheDocument();
+    expect(await screen.findByText('Ruta no encontrada')).toBeInTheDocument();
   });
 
   it('pre-fills the form with the existing route once loaded', async () => {

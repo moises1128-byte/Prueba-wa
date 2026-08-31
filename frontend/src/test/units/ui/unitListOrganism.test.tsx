@@ -37,6 +37,8 @@ describe('UnitListOrganism', () => {
         </UnitEditProvider>
       </MockedProvider>,
     );
-    expect(await screen.findByText('No units yet')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Todavía no hay unidades'),
+    ).toBeInTheDocument();
   });
 });

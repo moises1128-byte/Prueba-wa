@@ -8,14 +8,12 @@ import styles from './unitFormContent.module.css';
 
 interface UnitFormContentProps {
   disabled: boolean;
-  error?: string;
   submitLabel: string;
   onCancel?: () => void;
 }
 
 export function UnitFormContent({
   disabled,
-  error,
   submitLabel,
   onCancel,
 }: UnitFormContentProps) {
@@ -29,7 +27,7 @@ export function UnitFormContent({
       <Input
         {...register('name')}
         disabled={disabled}
-        placeholder="Unit name"
+        placeholder="Nombre de la unidad"
       />
       {errors.name ? (
         <p className={styles.error}>{errors.name.message}</p>
@@ -37,19 +35,18 @@ export function UnitFormContent({
       <Input
         {...register('driverName')}
         disabled={disabled}
-        placeholder="Driver name"
+        placeholder="Nombre del conductor"
       />
       {errors.driverName ? (
         <p className={styles.error}>{errors.driverName.message}</p>
       ) : null}
-      {error ? <p className={styles.error}>{error}</p> : null}
       <div className={styles.actions}>
         <Button type="submit" disabled={disabled}>
           {submitLabel}
         </Button>
         {onCancel ? (
           <Button type="button" disabled={disabled} onClick={onCancel}>
-            Cancel
+            Cancelar
           </Button>
         ) : null}
       </div>

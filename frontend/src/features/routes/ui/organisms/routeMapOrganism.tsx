@@ -19,10 +19,10 @@ export function RouteMapOrganism({ routeId }: RouteMapOrganismProps) {
   const { data: route, loading, error } = useRoute(routeId);
 
   if (loading) return <Spinner />;
-  if (error) return <ErrorState message="Could not load the map" />;
-  if (!route) return <ErrorState message="Route not found" />;
+  if (error) return <ErrorState message="No se pudo cargar el mapa" />;
+  if (!route) return <ErrorState message="Ruta no encontrada" />;
   if (!route.points.length)
-    return <EmptyState message="This route has no points yet" />;
+    return <EmptyState message="Esta ruta todavía no tiene puntos" />;
 
   return <RouteLeafletMap points={route.points} />;
 }

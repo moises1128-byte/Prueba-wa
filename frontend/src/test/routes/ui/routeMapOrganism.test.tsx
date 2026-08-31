@@ -24,7 +24,7 @@ describe('RouteMapOrganism', () => {
       </MockedProvider>,
     );
     expect(
-      await screen.findByText('This route has no points yet'),
+      await screen.findByText('Esta ruta todavía no tiene puntos'),
     ).toBeInTheDocument();
   });
 
@@ -40,6 +40,6 @@ describe('RouteMapOrganism', () => {
         <RouteMapOrganism routeId="missing" />
       </MockedProvider>,
     );
-    expect(await screen.findByText('Route not found')).toBeInTheDocument();
+    expect(await screen.findByText('Ruta no encontrada')).toBeInTheDocument();
   });
 });

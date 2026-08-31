@@ -8,19 +8,16 @@ import { fromCreateDutyInput } from '../../infrastructure/duties.transform';
 import type { TDutyForm } from '../../domain/duty.form';
 
 export function useCreateDuty(routeId: string) {
-  const [mutate, { loading, error, reset }] = useMutation(
-    CREATE_DUTY_MUTATION,
-    {
-      refetchQueries: [
-        { query: ROUTE_DUTIES_QUERY, variables: { routeId } },
-        { query: ROUTES_QUERY },
-      ],
-    },
-  );
+  const [mutate, { loading, error }] = useMutation(CREATE_DUTY_MUTATION, {
+    refetchQueries: [
+      { query: ROUTE_DUTIES_QUERY, variables: { routeId } },
+      { query: ROUTES_QUERY },
+    ],
+  });
 
   async function createDuty(form: TDutyForm) {
     return mutate({ variables: { input: fromCreateDutyInput(routeId, form) } });
   }
 
-  return { createDuty, loading, error, reset };
+  return { createDuty, loading, error };
 }

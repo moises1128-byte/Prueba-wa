@@ -3,6 +3,7 @@
 import React from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
 import { useRouteDuties } from '../../application/queries/useRouteDuties.query';
 import { useUnitsForDutyForm } from '../../application/queries/useUnitsForDutyForm.query';
 import { useCreateDuty } from '../../application/mutations/useCreateDuty.mutation';
@@ -27,47 +28,24 @@ interface RouteDutiesOrganismProps {
   routeId: string;
 }
 
-function dutyErrorMessage(error: unknown): string | undefined {
-  if (!error) return undefined;
+function saveDutyErrorMessage(error: unknown): string {
   const code = getGraphQLErrorCode(error);
   if (code === 'dutyOverlap')
-    return 'This unit already has a duty during that window.';
+    return 'Esta unidad ya tiene un duty asignado en ese horario.';
   if (code === 'invalidDutyWindow')
-    return 'The end time must be after the start time.';
-  return 'Failed to save duty. Please try again.';
+    return 'La hora de fin debe ser posterior a la de inicio.';
+  return 'No se pudo guardar el duty. Inténtalo de nuevo.';
 }
 
 export function RouteDutiesOrganism({ routeId }: RouteDutiesOrganismProps) {
   const { data: duties, loading, error } = useRouteDuties(routeId);
   const { data: units } = useUnitsForDutyForm();
-  const {
-    createDuty,
-    loading: creating,
-    error: createError,
-    reset: resetCreateError,
-  } = useCreateDuty(routeId);
-  const {
-    updateDuty,
-    loading: updating,
-    error: updateError,
-    reset: resetUpdateError,
-  } = useUpdateDuty(routeId);
-  const { deleteDuty, error: deleteError } = useDeleteDuty(routeId);
+  const { createDuty, loading: creating } = useCreateDuty(routeId);
+  const { updateDuty, loading: updating } = useUpdateDuty(routeId);
+  const { deleteDuty } = useDeleteDuty(routeId);
   const [editingDuty, setEditingDuty] = React.useState<Duty | null>(null);
 
   const saving = creating || updating;
-  const saveError = editingDuty ? updateError : createError;
-
-  // Apollo keeps a mutation's `error` until that mutation is fired again, so without
-  // this the form would resurrect a stale error the moment it switches modes: fail a
-  // create with an overlap, hit "Edit" (error hides, we now read updateError), then
-  // hit "Cancel" — and the old overlap warning reappears under a blank create form the
-  // user never submitted. Clearing both on every mode change keeps each mode's error
-  // from leaking into the other.
-  React.useEffect(() => {
-    resetCreateError();
-    resetUpdateError();
-  }, [editingDuty, resetCreateError, resetUpdateError]);
 
   const methods = useForm<TDutyForm>({
     values: editingDuty
@@ -80,12 +58,12 @@ export function RouteDutiesOrganism({ routeId }: RouteDutiesOrganismProps) {
     resolver: zodResolver(dutyFormDefinition),
   });
 
-  // A failed mutation is already reported through the hook's `error` state, which
-  // `dutyErrorMessage` turns into the inline message. Apollo still rejects the
-  // promise, and react-hook-form re-throws whatever the submit handler throws, so
-  // the rejection has to be absorbed here or it escapes as an unhandled rejection.
-  // Swallowing it also means the form keeps the user's input on failure instead of
-  // resetting it out from under them.
+  // Apollo's `useMutation` rejects on a GraphQL error, and react-hook-form's
+  // handleSubmit re-throws whatever the submit handler throws — so the rejection
+  // has to be caught here or it escapes as an unhandled rejection. Catching it
+  // also means the form keeps the user's input on failure instead of resetting
+  // it out from under them, and lets us show the failure as a one-shot toast
+  // instead of threading a stale, reactive `error` state through the form.
   async function onSubmit(data: TDutyForm) {
     if (saving) return;
     try {
@@ -96,20 +74,20 @@ export function RouteDutiesOrganism({ routeId }: RouteDutiesOrganismProps) {
       }
       await createDuty(data);
       methods.reset(dutyDefaultValues());
-    } catch {
-      // Rendered from `saveError` below — nothing to do here.
+    } catch (saveError) {
+      toast.error(saveDutyErrorMessage(saveError));
     }
   }
 
   function handleDelete(id: string) {
-    if (!window.confirm('Delete this duty?')) return;
+    if (!window.confirm('¿Eliminar este duty?')) return;
     void deleteDuty(id).catch(() => {
-      // Rendered from `deleteError` below — nothing to do here.
+      toast.error('No se pudo eliminar el duty. Inténtalo de nuevo.');
     });
   }
 
   if (loading) return <Spinner />;
-  if (error) return <ErrorState message="Could not load duties" />;
+  if (error) return <ErrorState message="No se pudieron cargar los duties" />;
 
   return (
     <div className={styles.section}>
@@ -118,17 +96,13 @@ export function RouteDutiesOrganism({ routeId }: RouteDutiesOrganismProps) {
           <DutyFormContent
             units={units ?? []}
             disabled={saving}
-            error={dutyErrorMessage(saveError)}
-            submitLabel={editingDuty ? 'Save changes' : 'Assign duty'}
+            submitLabel={editingDuty ? 'Guardar cambios' : 'Asignar duty'}
             onCancel={editingDuty ? () => setEditingDuty(null) : undefined}
           />
         </form>
       </FormProvider>
-      {deleteError ? (
-        <ErrorState message="Failed to delete duty. Please try again." />
-      ) : null}
       {!duties?.length ? (
-        <EmptyState message="No duties assigned to this route yet" />
+        <EmptyState message="Todavía no hay duties asignados a esta ruta" />
       ) : (
         <div className={styles.list}>
           {duties.map((duty) => (

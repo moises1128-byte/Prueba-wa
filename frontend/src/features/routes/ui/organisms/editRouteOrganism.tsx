@@ -3,6 +3,7 @@
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import {
   routeFormDefinition,
   routeDefaultValues,
@@ -23,19 +24,25 @@ interface EditRouteOrganismProps {
   routeId: string;
 }
 
+function updateRouteErrorMessage(error: unknown): string {
+  if (getGraphQLErrorCode(error) === 'invalidRoutePoint') {
+    return 'Uno de los puntos de la ruta no es válido.';
+  }
+  return 'No se pudo guardar la ruta. Inténtalo de nuevo.';
+}
+
+function deleteRouteErrorMessage(error: unknown): string {
+  if (getGraphQLErrorCode(error) === 'routeHasActiveDuties') {
+    return 'Esta ruta tiene duties asignados. Quítalos antes de eliminar la ruta.';
+  }
+  return 'No se pudo eliminar la ruta. Inténtalo de nuevo.';
+}
+
 export function EditRouteOrganism({ routeId }: EditRouteOrganismProps) {
   const router = useRouter();
   const { data: route, loading, error } = useRoute(routeId);
-  const {
-    updateRoute,
-    loading: updating,
-    error: updateError,
-  } = useUpdateRoute();
-  const {
-    deleteRoute,
-    loading: deleting,
-    error: deleteError,
-  } = useDeleteRoute();
+  const { updateRoute, loading: updating } = useUpdateRoute();
+  const { deleteRoute, loading: deleting } = useDeleteRoute();
 
   const methods = useForm<TRouteForm>({
     values: route
@@ -52,49 +59,37 @@ export function EditRouteOrganism({ routeId }: EditRouteOrganismProps) {
   });
 
   if (loading) return <Spinner />;
-  if (error) return <ErrorState message="Could not load this route" />;
-  if (!route) return <ErrorState message="Route not found" />;
+  if (error) return <ErrorState message="No se pudo cargar esta ruta" />;
+  if (!route) return <ErrorState message="Ruta no encontrada" />;
 
-  // A failed mutation is already reported through the hook's `error` state, which
-  // drives the inline message below. Apollo still rejects the promise, and
-  // react-hook-form re-throws whatever the submit handler throws, so the rejection
-  // has to be absorbed here or it escapes as an unhandled rejection. Swallowing it
+  // Apollo's `useMutation` rejects on a GraphQL error, and react-hook-form's
+  // handleSubmit re-throws whatever the submit handler throws — so the rejection
+  // has to be caught here or it escapes as an unhandled rejection. Catching it
   // also means the form keeps the user's input on failure.
   async function onSubmit(data: TRouteForm) {
     if (updating) return;
     try {
       await updateRoute(routeId, data);
-    } catch {
-      // Rendered from `updateError` below — nothing to do here.
+    } catch (updateError) {
+      toast.error(updateRouteErrorMessage(updateError));
     }
   }
 
   function handleDelete() {
     if (deleting) return;
-    if (!window.confirm('Delete this route?')) return;
+    if (!window.confirm('¿Eliminar esta ruta?')) return;
     void deleteRoute(routeId)
       .then(() => router.push(routeBuilders.routes()))
-      .catch(() => {
-        // Rendered from `deleteError` below — nothing to do here.
+      .catch((deleteError: unknown) => {
+        toast.error(deleteRouteErrorMessage(deleteError));
       });
   }
-
-  const deleteErrorMessage =
-    getGraphQLErrorCode(deleteError) === 'routeHasActiveDuties'
-      ? 'This route has duties assigned. Remove them before deleting the route.'
-      : deleteError
-        ? 'Failed to delete route. Please try again.'
-        : undefined;
 
   return (
     <div>
       <FormProvider {...methods}>
         <form onSubmit={methods.handleSubmit(onSubmit)}>
-          <RouteFormContent
-            disabled={updating}
-            error={updateError?.message}
-            submitLabel="Save changes"
-          />
+          <RouteFormContent disabled={updating} submitLabel="Guardar cambios" />
         </form>
       </FormProvider>
       <Button
@@ -103,9 +98,8 @@ export function EditRouteOrganism({ routeId }: EditRouteOrganismProps) {
         onClick={handleDelete}
         className={styles.deleteButton}
       >
-        Delete route
+        Eliminar ruta
       </Button>
-      {deleteErrorMessage ? <ErrorState message={deleteErrorMessage} /> : null}
     </div>
   );
 }

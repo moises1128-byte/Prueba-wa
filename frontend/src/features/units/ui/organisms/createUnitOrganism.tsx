@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
 import {
   unitFormDefinition,
   unitDefaultValues,
@@ -12,21 +12,18 @@ import { useCreateUnit } from '../../application/mutations/useCreateUnit.mutatio
 import { useUpdateUnit } from '../../application/mutations/useUpdateUnit.mutation';
 import { UnitFormContent } from '../molecules/unitFormContent';
 import { useUnitEdit } from '../context/unitEditContext';
+import { getGraphQLErrorCode } from '@/shared/utils/getGraphQLErrorCode';
+
+function unitErrorMessage(error: unknown): string {
+  const code = getGraphQLErrorCode(error);
+  if (code === 'invalidUnit') return 'Los datos de la unidad no son válidos.';
+  return 'No se pudo guardar la unidad. Inténtalo de nuevo.';
+}
 
 export function CreateUnitOrganism() {
   const { editingUnit, stopEditing } = useUnitEdit();
-  const {
-    createUnit,
-    loading: creating,
-    error: createError,
-    reset: resetCreateError,
-  } = useCreateUnit();
-  const {
-    updateUnit,
-    loading: updating,
-    error: updateError,
-    reset: resetUpdateError,
-  } = useUpdateUnit();
+  const { createUnit, loading: creating } = useCreateUnit();
+  const { updateUnit, loading: updating } = useUpdateUnit();
 
   const methods = useForm<TUnitForm>({
     values: unitDefaultValues(editingUnit ?? undefined),
@@ -34,25 +31,13 @@ export function CreateUnitOrganism() {
   });
 
   const loading = creating || updating;
-  const error = editingUnit ? updateError : createError;
 
-  // Apollo keeps a mutation's `error` until that mutation is fired again, so without
-  // this the form would resurrect a stale error the moment it switches modes: fail a
-  // create, hit "Edit" (error hides, we now read updateError), then hit "Cancel" —
-  // and the old error reappears under a blank create form the user never submitted.
-  // Clearing both on every mode change keeps each mode's error from leaking into the
-  // other, and also covers the post-successful-update `stopEditing()`.
-  React.useEffect(() => {
-    resetCreateError();
-    resetUpdateError();
-  }, [editingUnit, resetCreateError, resetUpdateError]);
-
-  // A failed mutation is already reported through the hook's `error` state, which
-  // drives the inline message below. Apollo still rejects the promise, and
-  // react-hook-form re-throws whatever the submit handler throws, so the rejection
-  // has to be absorbed here or it escapes as an unhandled rejection. Swallowing it
-  // also means the form keeps the user's input on failure instead of resetting it
-  // out from under them.
+  // Apollo's `useMutation` rejects on a GraphQL error, and react-hook-form's
+  // handleSubmit re-throws whatever the submit handler throws — so the rejection
+  // has to be caught here or it escapes as an unhandled rejection. Catching it
+  // here also means the form keeps the user's input on failure instead of
+  // resetting it out from under them, and lets us show the failure as a toast
+  // instead of threading a stale, reactive `error` state through the form.
   async function onSubmit(data: TUnitForm) {
     if (loading) return;
     try {
@@ -63,8 +48,8 @@ export function CreateUnitOrganism() {
       }
       await createUnit(data);
       methods.reset(unitDefaultValues());
-    } catch {
-      // Rendered from `error` below — nothing to do here.
+    } catch (error) {
+      toast.error(unitErrorMessage(error));
     }
   }
 
@@ -73,8 +58,7 @@ export function CreateUnitOrganism() {
       <form onSubmit={methods.handleSubmit(onSubmit)}>
         <UnitFormContent
           disabled={loading}
-          error={error?.message}
-          submitLabel={editingUnit ? 'Save changes' : 'Create unit'}
+          submitLabel={editingUnit ? 'Guardar cambios' : 'Crear unidad'}
           onCancel={editingUnit ? stopEditing : undefined}
         />
       </form>

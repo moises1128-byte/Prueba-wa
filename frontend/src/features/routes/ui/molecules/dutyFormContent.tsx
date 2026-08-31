@@ -8,7 +8,6 @@ import styles from './dutyFormContent.module.css';
 interface DutyFormContentProps {
   units: Array<{ id: string; name: string; driverName: string }>;
   disabled: boolean;
-  error?: string;
   submitLabel: string;
   onCancel?: () => void;
 }
@@ -16,7 +15,6 @@ interface DutyFormContentProps {
 export function DutyFormContent({
   units,
   disabled,
-  error,
   submitLabel,
   onCancel,
 }: DutyFormContentProps) {
@@ -33,7 +31,7 @@ export function DutyFormContent({
         disabled={disabled}
         className={styles.select}
       >
-        <option value="">Select a unit</option>
+        <option value="">Selecciona una unidad</option>
         {units.map((unit) => (
           <option key={unit.id} value={unit.id}>
             {unit.name} — {unit.driverName}
@@ -63,14 +61,13 @@ export function DutyFormContent({
       {errors.endsAt ? (
         <p className={styles.error}>{errors.endsAt.message}</p>
       ) : null}
-      {error ? <p className={styles.error}>{error}</p> : null}
       <div className={styles.actions}>
         <Button type="submit" disabled={disabled}>
           {submitLabel}
         </Button>
         {onCancel ? (
           <Button type="button" disabled={disabled} onClick={onCancel}>
-            Cancel
+            Cancelar
           </Button>
         ) : null}
       </div>

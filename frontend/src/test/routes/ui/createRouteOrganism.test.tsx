@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Toaster } from 'sonner';
 import { MockedProvider } from '@apollo/client/testing/react';
 import {
   CREATE_ROUTE_MUTATION,
@@ -28,13 +29,13 @@ describe('CreateRouteOrganism', () => {
       </MockedProvider>,
     );
 
-    const latitude = screen.getByPlaceholderText('Latitude');
+    const latitude = screen.getByPlaceholderText('Latitud');
     await user.clear(latitude);
     await user.type(latitude, '200');
-    await user.click(screen.getByRole('button', { name: 'Create route' }));
+    await user.click(screen.getByRole('button', { name: 'Crear ruta' }));
 
     expect(
-      await screen.findByText('Latitude must be between -90 and 90'),
+      await screen.findByText('La latitud debe estar entre -90 y 90'),
     ).toBeInTheDocument();
     expect(pushMock).not.toHaveBeenCalled();
   });
@@ -49,8 +50,10 @@ describe('CreateRouteOrganism', () => {
 
     // `valueAsNumber` turns an empty coordinate field into NaN, which the schema
     // rejects — before the fix this produced a form that just refused to submit.
-    await user.clear(screen.getByPlaceholderText('Longitude'));
-    await user.click(screen.getByRole('button', { name: 'Create route' }));
+    // This is Zod's own built-in invalid_type message, not one we wrote, so it
+    // stays in English.
+    await user.clear(screen.getByPlaceholderText('Longitud'));
+    await user.click(screen.getByRole('button', { name: 'Crear ruta' }));
 
     expect(
       await screen.findByText('Invalid input: expected number, received NaN'),
@@ -83,16 +86,16 @@ describe('CreateRouteOrganism', () => {
     );
 
     await user.type(
-      screen.getByPlaceholderText('Route name (optional)'),
+      screen.getByPlaceholderText('Nombre de la ruta (opcional)'),
       'Downtown loop',
     );
-    const latitude = screen.getByPlaceholderText('Latitude');
+    const latitude = screen.getByPlaceholderText('Latitud');
     await user.clear(latitude);
     await user.type(latitude, '10');
-    const longitude = screen.getByPlaceholderText('Longitude');
+    const longitude = screen.getByPlaceholderText('Longitud');
     await user.clear(longitude);
     await user.type(longitude, '20');
-    await user.click(screen.getByRole('button', { name: 'Create route' }));
+    await user.click(screen.getByRole('button', { name: 'Crear ruta' }));
 
     await vi.waitFor(() =>
       expect(pushMock).toHaveBeenCalledWith('/routes/route-42'),
@@ -119,25 +122,32 @@ describe('CreateRouteOrganism', () => {
     ];
 
     render(
-      <MockedProvider mocks={mocks}>
-        <CreateRouteOrganism />
-      </MockedProvider>,
+      <>
+        <MockedProvider mocks={mocks}>
+          <CreateRouteOrganism />
+        </MockedProvider>
+        <Toaster />
+      </>,
     );
 
     await user.type(
-      screen.getByPlaceholderText('Route name (optional)'),
+      screen.getByPlaceholderText('Nombre de la ruta (opcional)'),
       'Downtown loop',
     );
-    const latitude = screen.getByPlaceholderText('Latitude');
+    const latitude = screen.getByPlaceholderText('Latitud');
     await user.clear(latitude);
     await user.type(latitude, '10');
-    const longitude = screen.getByPlaceholderText('Longitude');
+    const longitude = screen.getByPlaceholderText('Longitud');
     await user.clear(longitude);
     await user.type(longitude, '20');
-    await user.click(screen.getByRole('button', { name: 'Create route' }));
+    await user.click(screen.getByRole('button', { name: 'Crear ruta' }));
 
+    // The mock's error carries no extensions.code, so the generic fallback
+    // toast message is what should surface — not the raw backend message.
     expect(
-      await screen.findByText('Route could not be created'),
+      await screen.findByText(
+        'No se pudo guardar la ruta. Inténtalo de nuevo.',
+      ),
     ).toBeInTheDocument();
     expect(pushMock).not.toHaveBeenCalled();
 

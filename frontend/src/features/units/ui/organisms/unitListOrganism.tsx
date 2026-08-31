@@ -1,5 +1,6 @@
 'use client';
 
+import { toast } from 'sonner';
 import { useUnits } from '../../application/queries/useUnits.query';
 import { useDeleteUnit } from '../../application/mutations/useDeleteUnit.mutation';
 import { useUnitEdit } from '../context/unitEditContext';
@@ -10,36 +11,36 @@ import { Button } from '@/shared/ui/atoms/button';
 import { getGraphQLErrorCode } from '@/shared/utils/getGraphQLErrorCode';
 import styles from './unitListOrganism.module.css';
 
+function deleteUnitErrorMessage(error: unknown): string {
+  if (getGraphQLErrorCode(error) === 'unitHasActiveDuties') {
+    return 'Esta unidad tiene duties asignados. Quítalos antes de eliminar la unidad.';
+  }
+  return 'No se pudo eliminar la unidad. Inténtalo de nuevo.';
+}
+
 export function UnitListOrganism() {
   const { data, loading, error } = useUnits();
-  const { deleteUnit, error: deleteError } = useDeleteUnit();
+  const { deleteUnit } = useDeleteUnit();
   const { editingUnit, startEditing } = useUnitEdit();
 
   function handleDelete(id: string) {
-    if (!window.confirm('Delete this unit?')) return;
-    void deleteUnit(id).catch(() => {
-      // Rendered from `deleteError` below — nothing to do here.
+    if (!window.confirm('¿Eliminar esta unidad?')) return;
+    void deleteUnit(id).catch((deleteError: unknown) => {
+      toast.error(deleteUnitErrorMessage(deleteError));
     });
   }
 
   if (loading) return <Spinner />;
-  if (error) return <ErrorState message="Could not load units" />;
-  if (!data?.length) return <EmptyState message="No units yet" />;
-
-  const deleteErrorMessage =
-    getGraphQLErrorCode(deleteError) === 'unitHasActiveDuties'
-      ? 'This unit has duties assigned. Remove them before deleting the unit.'
-      : deleteError
-        ? 'Failed to delete unit. Please try again.'
-        : undefined;
+  if (error) return <ErrorState message="No se pudieron cargar las unidades" />;
+  if (!data?.length) return <EmptyState message="Todavía no hay unidades" />;
 
   return (
     <div>
       <table className={styles.table}>
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Driver</th>
+            <th>Nombre</th>
+            <th>Conductor</th>
             <th></th>
           </tr>
         </thead>
@@ -55,17 +56,16 @@ export function UnitListOrganism() {
               <td>{unit.driverName}</td>
               <td className={styles.actions}>
                 <Button type="button" onClick={() => startEditing(unit)}>
-                  Edit
+                  Editar
                 </Button>
                 <Button type="button" onClick={() => handleDelete(unit.id)}>
-                  Delete
+                  Eliminar
                 </Button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-      {deleteErrorMessage ? <ErrorState message={deleteErrorMessage} /> : null}
     </div>
   );
 }

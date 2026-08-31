@@ -1,6 +1,6 @@
 import { RouteDetailPage } from '@/features/routes/ui/pages/routeDetailPage';
 
-export const metadata = { title: 'Route detail' };
+export const metadata = { title: 'Detalle de la ruta' };
 
 export default async function RouteDetailRoute({
   params,
