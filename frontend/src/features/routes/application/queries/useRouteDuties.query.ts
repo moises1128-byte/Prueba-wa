@@ -1,7 +1,6 @@
 import { useQuery } from '@apollo/client/react';
 import { ROUTE_DUTIES_QUERY } from '../../infrastructure/duties.graphql';
 import { toDutyDomain } from '../../infrastructure/duties.transform';
-import type { Duty } from '../../domain/duty.model';
 
 interface RouteDutiesQueryData {
   route: {
@@ -24,7 +23,7 @@ export function useRouteDuties(routeId: string) {
     },
   );
   return {
-    data: data?.route?.duties.map(toDutyDomain) as Duty[] | undefined,
+    data: data?.route?.duties.map(toDutyDomain),
     loading,
     error,
   };

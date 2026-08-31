@@ -4,4 +4,6 @@ backend/coverage
 backend/src/schema.gql
 frontend/.next
 frontend/out
+frontend/next-env.d.ts
 pnpm-lock.yaml
+.superpowers/

@@ -77,7 +77,7 @@ when the first test is written — don't leave this section aspirational once co
 
 Mock at **boundaries**:
 
-- Apollo Client (`MockedProvider` from `@apollo/client/testing`, with mocked responses per
+- Apollo Client (`MockedProvider` from `@apollo/client/testing/react`, with mocked responses per
   operation), time, randomness
 
 Don't mock:

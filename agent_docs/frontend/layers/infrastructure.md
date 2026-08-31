@@ -21,7 +21,7 @@ features/<feature>/infrastructure/
 
 There is no separate "API client" package in this project (no `@repo/services`) — the single
 Apollo Client instance is created once in `lib/apolloClient.ts` and used by every feature's query
-and mutation hooks via `@apollo/client`'s `useQuery`/`useMutation`, which read it from React
+and mutation hooks via `@apollo/client/react`'s `useQuery`/`useMutation`, which read it from React
 context (`ApolloProvider`).
 
 ---

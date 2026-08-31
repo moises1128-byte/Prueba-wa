@@ -6,6 +6,6 @@ const ROUTE_PATHS = {
 
 export const routeBuilders = {
   routes: () => ROUTE_PATHS.ROUTES,
-  routeDetail: (id: string) => `/routes/${id}`,
+  routeDetail: (id: string) => ROUTE_PATHS.ROUTE_DETAIL.replace('[id]', id),
   units: () => ROUTE_PATHS.UNITS,
 } as const;

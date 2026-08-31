@@ -1,7 +1,6 @@
 import { useQuery } from '@apollo/client/react';
 import { ROUTES_QUERY } from '../../infrastructure/routes.graphql';
 import { toRouteSummaryDomain } from '../../infrastructure/routes.transform';
-import type { RouteSummary } from '../../domain/route.model';
 
 interface RoutesQueryData {
   routes: Array<{
@@ -15,7 +14,7 @@ interface RoutesQueryData {
 export function useRoutes() {
   const { data, loading, error } = useQuery<RoutesQueryData>(ROUTES_QUERY);
   return {
-    data: data?.routes.map(toRouteSummaryDomain) as RouteSummary[] | undefined,
+    data: data?.routes.map(toRouteSummaryDomain),
     loading,
     error,
   };

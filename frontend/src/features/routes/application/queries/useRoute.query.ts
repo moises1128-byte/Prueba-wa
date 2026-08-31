@@ -1,7 +1,6 @@
 import { useQuery } from '@apollo/client/react';
 import { ROUTE_QUERY } from '../../infrastructure/routes.graphql';
 import { toRouteDomain } from '../../infrastructure/routes.transform';
-import type { Route } from '../../domain/route.model';
 
 interface RouteQueryData {
   route: {
@@ -16,9 +15,7 @@ export function useRoute(id: string) {
     variables: { id },
   });
   return {
-    data: data
-      ? ((data.route ? toRouteDomain(data.route) : null) as Route | null)
-      : undefined,
+    data: data ? (data.route ? toRouteDomain(data.route) : null) : undefined,
     loading,
     error,
   };
