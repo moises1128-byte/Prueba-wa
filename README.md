@@ -117,10 +117,11 @@ uso por caso de uso (inputs, todos los errores que puede lanzar, y qué cubre ca
   aviso de que se pisó el cambio del otro. Es un tipo de concurrencia distinto al que protege el
   guard de solapamiento (ahí compiten dos duties distintos por el mismo slot de una unidad; acá es
   el mismo registro editado dos veces) y tampoco está cubierto.
-- **`DeleteDutyUseCase`** libera la ventana (`$pull` de `busyWindows`) y después borra el documento
-  `Duty`. Si el segundo paso falla después de que el primero tuvo éxito, queda una inconsistencia
-  menor (el duty sigue existiendo pero ya no bloquea su horario) — no hay rollback ni test que
-  pruebe recuperación en ese punto específico.
+- **`DeleteDutyUseCase`** borra el documento `Duty` primero y **después** libera la ventana
+  (`$pull` de `busyWindows`) en la unidad. Si el segundo paso falla después de que el primero tuvo
+  éxito, queda una inconsistencia real: el duty ya no existe (no aparece en ningún listado), pero la
+  unidad sigue "ocupada" para ese horario para siempre, porque nada más limpia una reserva huérfana
+  — no hay rollback ni test que pruebe recuperación en ese punto específico.
 
 ## Qué dejé fuera conscientemente
 

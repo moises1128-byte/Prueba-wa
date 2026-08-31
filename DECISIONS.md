@@ -21,12 +21,27 @@ todo IA.
 
 - **GraphQL en vez de REST** para la capa de API. Lo pedí explícitamente desde el arranque del
   proyecto, antes de que se escribiera una línea de código.
+- **MongoDB pese a que el dominio tiene aristas relacionales** (`Duty` referencia una `Route` y una
+  `Unit`; el borrado de una ruta/unidad con duties activos tiene que bloquearse, no solo cascadear
+  libremente). Me quedé con la opción por defecto en vez de saltar a Postgres, pero eso obligó a
+  resolver esa integridad "relacional" sin foreign keys ni transacciones: la referencia
+  ruta/unidad se valida en el caso de uso antes de crear el duty (no a nivel de esquema), y la
+  invariante que de verdad importa bajo concurrencia (no-solapamiento) se resuelve con un
+  `findOneAndUpdate` atómico sobre un solo documento en vez de una transacción multi-documento —
+  ver la sección "Concurrencia y casos borde" del `README.md`. Si el dominio creciera con más
+  relaciones cruzadas que necesiten integridad referencial real a nivel de base de datos, ahí sí
+  reconsideraría Postgres.
 - **Arquitectura hexagonal en el backend** (dominio puro sin dependencias de framework, casos de
-  uso, adaptadores de infraestructura) y **Atomic Design en el frontend**. Eran los patrones que ya
-  traía de otro proyecto mío y pedí que se adaptaran a este stack (Mongoose en vez de
-  Postgres/Drizzle, GraphQL en vez de REST, sin CQRS).
+  uso, adaptadores de infraestructura) y **Atomic Design en el frontend**. Elegí estos patrones
+  explícitamente desde el arranque del proyecto y pedí que se aplicaran de forma consistente en todo
+  el stack (Mongoose para persistencia, GraphQL como capa de API, sin CQRS).
 - **Agregué el campo `driverName` a `Unit`** durante el diseño — la propuesta inicial de la IA no lo
   tenía, y me pareció que una unidad sin conductor asignado no tenía sentido para el caso de uso.
+- **`startsAt`/`endsAt` explícitos en vez de inicio + duración.** El brief daba la opción libre,
+  siempre que el fin quedara explícito. Elegí dos timestamps en vez de duración porque es más
+  simple de comparar directamente para la regla de solapamiento (`aStart < bEnd && bStart < aEnd`,
+  sin tener que sumar una duración a un inicio antes de cada comparación) y porque así el frontend
+  no tiene que reconstruir el fin real a partir de una duración al mostrar o editar un duty.
 - **La regla de no-solapamiento se decide por unidad, no por ruta.** Le pregunté explícitamente qué
   pasa si la misma unidad tiene un duty y le asignan otro a la misma hora en una ruta distinta — la
   respuesta correcta (y la que se implementó) es que se rechaza igual, porque el recurso escaso es
@@ -37,8 +52,8 @@ todo IA.
   secundario de borrar su ruta/unidad me pareció peligroso — un duty representa trabajo real
   asignado, no algo para descartar silenciosamente.
 - **Todos los identificadores en inglés, sin excepción**, aunque toda la conversación y la UI final
-  quedaran en español. Lo dejé como regla dura desde el principio del proyecto porque es la
-  convención que uso en mis otros repos.
+  quedaran en español. Lo dejé como regla dura desde el principio del proyecto por consistencia con
+  el resto del ecosistema (librerías, convenciones del stack) que está en inglés.
 - **Worktrees aislados + merge local, no push directo a `main`.** En cada fase grande (backend,
   frontend) pedí que el trabajo se hiciera en una rama aislada y que se me presentaran las opciones
   de merge al terminar — elegí mergear localmente después de verificar tests, no subir un PR ni
@@ -95,8 +110,8 @@ antes de que llegaran a `main`:
   misma forma — ruido en consola en producción, y una trampa para el próximo test que tocara esa
   ruta.
 - **La documentación de Apollo Client estaba desactualizada antes de escribir una sola línea de
-  código de UI.** El proyecto instaló Apollo Client v4, pero la documentación de convenciones
-  (heredada, escrita para v3) tenía rutas de import viejas. Se corrigió la documentación primero,
+  código de UI.** El proyecto instaló Apollo Client v4, pero la documentación de convenciones del
+  repo (escrita pensando en v3) tenía rutas de import viejas. Se corrigió la documentación primero,
   antes de implementar features, para no propagar el error a cada archivo nuevo.
 
 Ninguno de estos bugs lo encontré yo leyendo código línea por línea — los encontró el proceso de
