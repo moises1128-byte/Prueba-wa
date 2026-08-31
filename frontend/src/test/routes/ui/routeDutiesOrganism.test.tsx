@@ -74,10 +74,10 @@ describe('RouteDutiesOrganism', () => {
       screen.getByRole('combobox', { name: 'Unidad' }),
       'unit-1',
     );
-    fireEvent.change(screen.getByLabelText('Hora de inicio'), {
+    fireEvent.change(screen.getByLabelText('Hora de partida'), {
       target: { value: startsAt },
     });
-    fireEvent.change(screen.getByLabelText('Hora de fin'), {
+    fireEvent.change(screen.getByLabelText('Hora de llegada'), {
       target: { value: endsAt },
     });
     await user.click(screen.getByRole('button', { name: 'Asignar turno' }));
@@ -146,10 +146,10 @@ describe('RouteDutiesOrganism', () => {
       screen.getByRole('combobox', { name: 'Unidad' }),
       'unit-1',
     );
-    fireEvent.change(screen.getByLabelText('Hora de inicio'), {
+    fireEvent.change(screen.getByLabelText('Hora de partida'), {
       target: { value: startsAt },
     });
-    fireEvent.change(screen.getByLabelText('Hora de fin'), {
+    fireEvent.change(screen.getByLabelText('Hora de llegada'), {
       target: { value: endsAt },
     });
     await user.click(screen.getByRole('button', { name: 'Asignar turno' }));

@@ -36,28 +36,56 @@ export function RouteFormContent({
           // (which `valueAsNumber` turns into NaN) or typing an out-of-range value
           // just makes the submit button do nothing, with no feedback at all.
           const pointErrors = errors.points?.[index];
+          const latId = `${field.id}-lat`;
+          const lngId = `${field.id}-lng`;
+          const nameId = `${field.id}-name`;
           return (
             <div key={field.id} className={styles.point}>
+              <span className={styles.pointLabel}>
+                Punto {index + 1} en el mapa
+              </span>
               <div className={styles.pointRow}>
-                <Input
-                  {...register(`points.${index}.lat`, { valueAsNumber: true })}
-                  disabled={disabled}
-                  type="number"
-                  step="any"
-                  placeholder="Latitud"
-                />
-                <Input
-                  {...register(`points.${index}.lng`, { valueAsNumber: true })}
-                  disabled={disabled}
-                  type="number"
-                  step="any"
-                  placeholder="Longitud"
-                />
-                <Input
-                  {...register(`points.${index}.name`)}
-                  disabled={disabled}
-                  placeholder="Nombre del punto (opcional)"
-                />
+                <div className={styles.field}>
+                  <label htmlFor={latId} className={styles.fieldLabel}>
+                    Latitud
+                  </label>
+                  <Input
+                    id={latId}
+                    {...register(`points.${index}.lat`, {
+                      valueAsNumber: true,
+                    })}
+                    disabled={disabled}
+                    type="number"
+                    step="any"
+                    placeholder="Latitud"
+                  />
+                </div>
+                <div className={styles.field}>
+                  <label htmlFor={lngId} className={styles.fieldLabel}>
+                    Longitud
+                  </label>
+                  <Input
+                    id={lngId}
+                    {...register(`points.${index}.lng`, {
+                      valueAsNumber: true,
+                    })}
+                    disabled={disabled}
+                    type="number"
+                    step="any"
+                    placeholder="Longitud"
+                  />
+                </div>
+                <div className={styles.field}>
+                  <label htmlFor={nameId} className={styles.fieldLabel}>
+                    Nombre del punto (opcional)
+                  </label>
+                  <Input
+                    id={nameId}
+                    {...register(`points.${index}.name`)}
+                    disabled={disabled}
+                    placeholder="Ej: Plaza Venezuela"
+                  />
+                </div>
                 <Button
                   type="button"
                   disabled={disabled || fields.length === 1}

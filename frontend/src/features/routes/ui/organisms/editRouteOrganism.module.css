@@ -11,6 +11,7 @@
 }
 
 .deleteButton {
+  align-self: flex-start;
   margin-top: var(--space-md);
   background: var(--color-error);
 }
