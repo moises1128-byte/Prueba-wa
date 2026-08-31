@@ -17,7 +17,9 @@ export function UnitListOrganism() {
 
   function handleDelete(id: string) {
     if (!window.confirm('Delete this unit?')) return;
-    void deleteUnit(id);
+    void deleteUnit(id).catch(() => {
+      // Rendered from `deleteError` below — nothing to do here.
+    });
   }
 
   if (loading) return <Spinner />;

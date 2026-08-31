@@ -92,6 +92,57 @@ export function DutyListOrganism() {
 }
 ```
 
+#### Submit and delete handlers must absorb the mutation's rejection
+
+Every submit handler that `await`s a mutation needs its own `try/catch`, and every fire-and-forget
+delete needs its own `.catch()`. This is **not** redundant with Apollo's own protection — don't
+"clean it up".
+
+Apollo v4's `useMutation` does attach a no-op `.catch()` to the promise it hands back
+(`preventUnhandledRejection` in `@apollo/client/react/hooks/useMutation.js`), but that only protects
+_that_ promise. Every mutation hook in this codebase wraps `mutate()` in its own `async function`
+(`async function createUnit(form) { return mutate(...) }`), which produces a **derived** promise
+Apollo never sees and therefore never guards. On top of that, react-hook-form's `handleSubmit`
+re-throws whatever the submit handler throws. So a rejecting mutation escapes as an unhandled
+rejection — console noise in the browser, and a hard test failure the moment a test exercises a
+failing mutation on that path.
+
+The `catch` block stays empty on purpose: the UI is driven by the hook's reactive `error` state,
+not by the caught error object, so there is nothing left to do with it. Swallowing the rejection
+also means the form keeps the user's input instead of resetting it out from under them.
+
+```tsx
+async function onSubmit(data: TDutyForm) {
+  try {
+    await createDuty(data);
+    methods.reset(dutyDefaultValues());
+  } catch {
+    // Rendered from the hook's `error` state — nothing to do here.
+  }
+}
+
+function handleDelete(id: string) {
+  void deleteDuty(id).catch(() => {
+    // Rendered from the hook's `error` state — nothing to do here.
+  });
+}
+```
+
+#### Mode-switching forms must reset both mutations
+
+A form that serves both "create" and "edit" reads `editing ? updateError : createError`. Apollo
+keeps a mutation's `error` until that mutation runs again, so the un-read error stays stale and
+reappears the moment the form switches back. Call both hooks' `reset` in a `useEffect` keyed on the
+editing target so every mode change — starting an edit, cancelling, or the post-save stop — clears
+both.
+
+```tsx
+React.useEffect(() => {
+  resetCreateError();
+  resetUpdateError();
+}, [editingDuty, resetCreateError, resetUpdateError]);
+```
+
 #### `error.tsx` — for unrecoverable errors
 
 ```tsx
@@ -141,7 +192,9 @@ Server Actions return a `{ success, ... }` shape — never throw. See
 
 - **Wrapping every hook's return in a custom `Safe<T>`-style shape** — Apollo's own
   `loading`/`error`/`data` is already that shape; don't reinvent it.
-- **Empty catch blocks** — `catch (e) {}` hides bugs. Always log, re-throw, or return an error.
+- **Empty catch blocks** — `catch (e) {}` hides bugs. Always log, re-throw, or return an error. The
+  one sanctioned exception is a submit/delete handler absorbing an Apollo mutation rejection that is
+  already surfaced by the hook's reactive `error` state (see above) — comment it as such.
 - **Raw `error.message` in UI** — May contain internal details. Show safe messages, and match
   specific `extensions.code` values for specific copy.
 - **try/catch "just in case"** — Don't wrap code that cannot fail.

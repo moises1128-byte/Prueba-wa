@@ -21,11 +21,20 @@ export function CreateRouteOrganism() {
     resolver: zodResolver(routeFormDefinition),
   });
 
+  // A failed mutation is already reported through the hook's `error` state, which
+  // drives the inline message below. Apollo still rejects the promise, and
+  // react-hook-form re-throws whatever the submit handler throws, so the rejection
+  // has to be absorbed here or it escapes as an unhandled rejection. On failure the
+  // `await` throws before the navigation line, so we correctly stay on the form.
   async function onSubmit(data: TRouteForm) {
     if (loading) return;
-    const result = await createRoute(data);
-    const id = result.data?.createRoute?.id;
-    if (id) router.push(routeBuilders.routeDetail(id));
+    try {
+      const result = await createRoute(data);
+      const id = result.data?.createRoute?.id;
+      if (id) router.push(routeBuilders.routeDetail(id));
+    } catch {
+      // Rendered from `error` below — nothing to do here.
+    }
   }
 
   return (

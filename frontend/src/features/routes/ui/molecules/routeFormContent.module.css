@@ -11,6 +11,12 @@
   gap: var(--space-sm);
 }
 
+.point {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
 .pointRow {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr auto;

@@ -55,15 +55,28 @@ export function EditRouteOrganism({ routeId }: EditRouteOrganismProps) {
   if (error) return <ErrorState message="Could not load this route" />;
   if (!route) return <ErrorState message="Route not found" />;
 
+  // A failed mutation is already reported through the hook's `error` state, which
+  // drives the inline message below. Apollo still rejects the promise, and
+  // react-hook-form re-throws whatever the submit handler throws, so the rejection
+  // has to be absorbed here or it escapes as an unhandled rejection. Swallowing it
+  // also means the form keeps the user's input on failure.
   async function onSubmit(data: TRouteForm) {
     if (updating) return;
-    await updateRoute(routeId, data);
+    try {
+      await updateRoute(routeId, data);
+    } catch {
+      // Rendered from `updateError` below — nothing to do here.
+    }
   }
 
   function handleDelete() {
     if (deleting) return;
     if (!window.confirm('Delete this route?')) return;
-    void deleteRoute(routeId).then(() => router.push(routeBuilders.routes()));
+    void deleteRoute(routeId)
+      .then(() => router.push(routeBuilders.routes()))
+      .catch(() => {
+        // Rendered from `deleteError` below — nothing to do here.
+      });
   }
 
   const deleteErrorMessage =
