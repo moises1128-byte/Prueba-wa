@@ -190,3 +190,16 @@ uso por caso de uso (inputs, todos los errores que puede lanzar, y qué cubre ca
   el volumen de duties por unidad creciera mucho — hoy es la elección correcta para el volumen de un
   MVP, pero un array que crece sin límite dentro de un documento tiene un techo práctico en MongoDB
   (16MB por documento).
+- **Control de concurrencia optimista** en las actualizaciones (`UpdateRouteUseCase`,
+  `UpdateUnitUseCase`, `UpdateDutyUseCase` para campos que no son la ventana horaria). Hoy dos
+  personas editando el mismo registro a la vez resuelven en "gana el último write" sin ningún
+  aviso — un campo de versión permitiría detectar el conflicto y avisarle al segundo usuario en vez
+  de pisar el cambio del primero en silencio. Es un tipo de concurrencia distinto al que sí está
+  endurecido (el guard de solapamiento protege dos duties compitiendo por el mismo slot; esto es el
+  mismo registro editado dos veces).
+- **Manejo explícito de zona horaria.** Hoy las fechas de un duty se toman tal cual las entrega el
+  navegador del usuario (`datetime-local` interpretado en su hora local) y se guardan en UTC, sin
+  fijar ni mostrar una zona horaria de referencia en ningún punto de la UI. Funciona bien mientras
+  todos los que usan la app estén en la misma zona horaria, pero para operar rutas en varias
+  ciudades a la vez esto se vuelve un problema real — dos personas en zonas distintas verían
+  "la misma hora" de forma diferente sin saberlo.
