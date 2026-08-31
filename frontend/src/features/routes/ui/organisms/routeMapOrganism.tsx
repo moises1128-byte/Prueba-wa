@@ -21,7 +21,8 @@ export function RouteMapOrganism({ routeId }: RouteMapOrganismProps) {
   if (loading) return <Spinner />;
   if (error) return <ErrorState message="Could not load the map" />;
   if (!route) return <ErrorState message="Route not found" />;
-  if (!route.points.length) return <EmptyState message="This route has no points yet" />;
+  if (!route.points.length)
+    return <EmptyState message="This route has no points yet" />;
 
   return <RouteLeafletMap points={route.points} />;
 }

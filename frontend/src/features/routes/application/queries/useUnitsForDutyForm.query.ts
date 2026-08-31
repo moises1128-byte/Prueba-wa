@@ -6,6 +6,8 @@ interface UnitsForDutyFormData {
 }
 
 export function useUnitsForDutyForm() {
-  const { data, loading, error } = useQuery<UnitsForDutyFormData>(UNITS_FOR_DUTY_FORM_QUERY);
+  const { data, loading, error } = useQuery<UnitsForDutyFormData>(
+    UNITS_FOR_DUTY_FORM_QUERY,
+  );
   return { data: data?.units, loading, error };
 }

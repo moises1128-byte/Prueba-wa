@@ -5,7 +5,10 @@ type ButtonProps = ComponentProps<'button'>;
 
 export function Button({ children, className, ...props }: ButtonProps) {
   return (
-    <button className={[styles.button, className].filter(Boolean).join(' ')} {...props}>
+    <button
+      className={[styles.button, className].filter(Boolean).join(' ')}
+      {...props}
+    >
       {children}
     </button>
   );

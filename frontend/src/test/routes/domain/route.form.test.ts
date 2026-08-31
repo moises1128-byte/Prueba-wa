@@ -16,7 +16,9 @@ describe('routeFormDefinition', () => {
   });
 
   it('rejects an out-of-range latitude', () => {
-    const result = routeFormDefinition.safeParse({ points: [{ lat: 200, lng: 20 }] });
+    const result = routeFormDefinition.safeParse({
+      points: [{ lat: 200, lng: 20 }],
+    });
     expect(result.success).toBe(false);
   });
 });

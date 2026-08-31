@@ -3,7 +3,11 @@
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { routeFormDefinition, routeDefaultValues, type TRouteForm } from '../../domain/route.form';
+import {
+  routeFormDefinition,
+  routeDefaultValues,
+  type TRouteForm,
+} from '../../domain/route.form';
 import { useCreateRoute } from '../../application/mutations/useCreateRoute.mutation';
 import { RouteFormContent } from '../molecules/routeFormContent';
 import { routeBuilders } from '@/shared/routes/routes';
@@ -27,7 +31,11 @@ export function CreateRouteOrganism() {
   return (
     <FormProvider {...methods}>
       <form onSubmit={methods.handleSubmit(onSubmit)}>
-        <RouteFormContent disabled={loading} error={error?.message} submitLabel="Create route" />
+        <RouteFormContent
+          disabled={loading}
+          error={error?.message}
+          submitLabel="Create route"
+        />
       </form>
     </FormProvider>
   );

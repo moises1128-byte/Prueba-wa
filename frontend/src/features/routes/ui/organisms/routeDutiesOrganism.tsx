@@ -8,7 +8,11 @@ import { useUnitsForDutyForm } from '../../application/queries/useUnitsForDutyFo
 import { useCreateDuty } from '../../application/mutations/useCreateDuty.mutation';
 import { useUpdateDuty } from '../../application/mutations/useUpdateDuty.mutation';
 import { useDeleteDuty } from '../../application/mutations/useDeleteDuty.mutation';
-import { dutyFormDefinition, dutyDefaultValues, type TDutyForm } from '../../domain/duty.form';
+import {
+  dutyFormDefinition,
+  dutyDefaultValues,
+  type TDutyForm,
+} from '../../domain/duty.form';
 import { toDatetimeLocalValue } from '../../domain/duty.logic';
 import { DutyRow } from '../molecules/dutyRow';
 import { DutyFormContent } from '../molecules/dutyFormContent';
@@ -26,8 +30,10 @@ interface RouteDutiesOrganismProps {
 function dutyErrorMessage(error: unknown): string | undefined {
   if (!error) return undefined;
   const code = getGraphQLErrorCode(error);
-  if (code === 'dutyOverlap') return 'This unit already has a duty during that window.';
-  if (code === 'invalidDutyWindow') return 'The end time must be after the start time.';
+  if (code === 'dutyOverlap')
+    return 'This unit already has a duty during that window.';
+  if (code === 'invalidDutyWindow')
+    return 'The end time must be after the start time.';
   return 'Failed to save duty. Please try again.';
 }
 
@@ -118,7 +124,9 @@ export function RouteDutiesOrganism({ routeId }: RouteDutiesOrganismProps) {
           />
         </form>
       </FormProvider>
-      {deleteError ? <ErrorState message="Failed to delete duty. Please try again." /> : null}
+      {deleteError ? (
+        <ErrorState message="Failed to delete duty. Please try again." />
+      ) : null}
       {!duties?.length ? (
         <EmptyState message="No duties assigned to this route yet" />
       ) : (

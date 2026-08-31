@@ -43,7 +43,12 @@ export function UnitListOrganism() {
         </thead>
         <tbody>
           {data.map((unit) => (
-            <tr key={unit.id} className={unit.id === editingUnit?.id ? styles.editing : undefined}>
+            <tr
+              key={unit.id}
+              className={
+                unit.id === editingUnit?.id ? styles.editing : undefined
+              }
+            >
               <td>{unit.name}</td>
               <td>{unit.driverName}</td>
               <td className={styles.actions}>

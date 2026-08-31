@@ -12,7 +12,11 @@ interface RouteFormContentProps {
   submitLabel: string;
 }
 
-export function RouteFormContent({ disabled, error, submitLabel }: RouteFormContentProps) {
+export function RouteFormContent({
+  disabled,
+  error,
+  submitLabel,
+}: RouteFormContentProps) {
   const {
     register,
     control,
@@ -22,7 +26,11 @@ export function RouteFormContent({ disabled, error, submitLabel }: RouteFormCont
 
   return (
     <div className={styles.form}>
-      <Input {...register('name')} disabled={disabled} placeholder="Route name (optional)" />
+      <Input
+        {...register('name')}
+        disabled={disabled}
+        placeholder="Route name (optional)"
+      />
       <div className={styles.points}>
         {fields.map((field, index) => (
           <div key={field.id} className={styles.pointRow}>
@@ -40,15 +48,29 @@ export function RouteFormContent({ disabled, error, submitLabel }: RouteFormCont
               step="any"
               placeholder="Longitude"
             />
-            <Input {...register(`points.${index}.name`)} disabled={disabled} placeholder="Point name (optional)" />
-            <Button type="button" disabled={disabled || fields.length === 1} onClick={() => remove(index)}>
+            <Input
+              {...register(`points.${index}.name`)}
+              disabled={disabled}
+              placeholder="Point name (optional)"
+            />
+            <Button
+              type="button"
+              disabled={disabled || fields.length === 1}
+              onClick={() => remove(index)}
+            >
               Remove
             </Button>
           </div>
         ))}
       </div>
-      {errors.points?.message ? <p className={styles.error}>{errors.points.message}</p> : null}
-      <Button type="button" disabled={disabled} onClick={() => append({ lat: 0, lng: 0, name: '' })}>
+      {errors.points?.message ? (
+        <p className={styles.error}>{errors.points.message}</p>
+      ) : null}
+      <Button
+        type="button"
+        disabled={disabled}
+        onClick={() => append({ lat: 0, lng: 0, name: '' })}
+      >
         Add point
       </Button>
       {error ? <p className={styles.error}>{error}</p> : null}

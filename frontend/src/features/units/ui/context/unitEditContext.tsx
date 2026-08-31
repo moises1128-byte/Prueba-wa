@@ -23,11 +23,16 @@ export function UnitEditProvider({ children }: { children: React.ReactNode }) {
     [editingUnit],
   );
 
-  return <UnitEditContext.Provider value={value}>{children}</UnitEditContext.Provider>;
+  return (
+    <UnitEditContext.Provider value={value}>
+      {children}
+    </UnitEditContext.Provider>
+  );
 }
 
 export function useUnitEdit(): UnitEditContextValue {
   const ctx = React.useContext(UnitEditContext);
-  if (!ctx) throw new Error('useUnitEdit must be used within a UnitEditProvider');
+  if (!ctx)
+    throw new Error('useUnitEdit must be used within a UnitEditProvider');
   return ctx;
 }

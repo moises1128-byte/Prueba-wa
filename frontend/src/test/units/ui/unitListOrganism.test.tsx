@@ -10,7 +10,9 @@ describe('UnitListOrganism', () => {
     const mocks = [
       {
         request: { query: UNITS_QUERY },
-        result: { data: { units: [{ id: '1', name: 'Truck 1', driverName: 'Alex' }] } },
+        result: {
+          data: { units: [{ id: '1', name: 'Truck 1', driverName: 'Alex' }] },
+        },
       },
     ];
     render(
@@ -25,7 +27,9 @@ describe('UnitListOrganism', () => {
   });
 
   it('shows an empty state when there are no units', async () => {
-    const mocks = [{ request: { query: UNITS_QUERY }, result: { data: { units: [] } } }];
+    const mocks = [
+      { request: { query: UNITS_QUERY }, result: { data: { units: [] } } },
+    ];
     render(
       <MockedProvider mocks={mocks}>
         <UnitEditProvider>

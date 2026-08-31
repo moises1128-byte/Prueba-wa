@@ -12,7 +12,12 @@ describe('RouteListOrganism', () => {
         result: {
           data: {
             routes: [
-              { id: '1', name: 'Downtown loop', points: [{ lat: 1, lng: 2, name: null }], duties: [] },
+              {
+                id: '1',
+                name: 'Downtown loop',
+                points: [{ lat: 1, lng: 2, name: null }],
+                duties: [],
+              },
             ],
           },
         },
@@ -28,7 +33,9 @@ describe('RouteListOrganism', () => {
   });
 
   it('shows an empty state when there are no routes', async () => {
-    const mocks = [{ request: { query: ROUTES_QUERY }, result: { data: { routes: [] } } }];
+    const mocks = [
+      { request: { query: ROUTES_QUERY }, result: { data: { routes: [] } } },
+    ];
     render(
       <MockedProvider mocks={mocks}>
         <RouteListOrganism />

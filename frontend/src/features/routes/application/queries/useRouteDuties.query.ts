@@ -17,9 +17,12 @@ interface RouteDutiesQueryData {
 }
 
 export function useRouteDuties(routeId: string) {
-  const { data, loading, error } = useQuery<RouteDutiesQueryData>(ROUTE_DUTIES_QUERY, {
-    variables: { routeId },
-  });
+  const { data, loading, error } = useQuery<RouteDutiesQueryData>(
+    ROUTE_DUTIES_QUERY,
+    {
+      variables: { routeId },
+    },
+  );
   return {
     data: data?.route?.duties.map(toDutyDomain) as Duty[] | undefined,
     loading,

@@ -3,7 +3,11 @@
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { routeFormDefinition, routeDefaultValues, type TRouteForm } from '../../domain/route.form';
+import {
+  routeFormDefinition,
+  routeDefaultValues,
+  type TRouteForm,
+} from '../../domain/route.form';
 import { useRoute } from '../../application/queries/useRoute.query';
 import { useUpdateRoute } from '../../application/mutations/useUpdateRoute.mutation';
 import { useDeleteRoute } from '../../application/mutations/useDeleteRoute.mutation';
@@ -22,14 +26,26 @@ interface EditRouteOrganismProps {
 export function EditRouteOrganism({ routeId }: EditRouteOrganismProps) {
   const router = useRouter();
   const { data: route, loading, error } = useRoute(routeId);
-  const { updateRoute, loading: updating, error: updateError } = useUpdateRoute();
-  const { deleteRoute, loading: deleting, error: deleteError } = useDeleteRoute();
+  const {
+    updateRoute,
+    loading: updating,
+    error: updateError,
+  } = useUpdateRoute();
+  const {
+    deleteRoute,
+    loading: deleting,
+    error: deleteError,
+  } = useDeleteRoute();
 
   const methods = useForm<TRouteForm>({
     values: route
       ? routeDefaultValues({
           name: route.name ?? undefined,
-          points: route.points.map((p) => ({ lat: p.lat, lng: p.lng, name: p.name ?? undefined })),
+          points: route.points.map((p) => ({
+            lat: p.lat,
+            lng: p.lng,
+            name: p.name ?? undefined,
+          })),
         })
       : undefined,
     resolver: zodResolver(routeFormDefinition),
@@ -61,10 +77,19 @@ export function EditRouteOrganism({ routeId }: EditRouteOrganismProps) {
     <div>
       <FormProvider {...methods}>
         <form onSubmit={methods.handleSubmit(onSubmit)}>
-          <RouteFormContent disabled={updating} error={updateError?.message} submitLabel="Save changes" />
+          <RouteFormContent
+            disabled={updating}
+            error={updateError?.message}
+            submitLabel="Save changes"
+          />
         </form>
       </FormProvider>
-      <Button type="button" disabled={deleting} onClick={handleDelete} className={styles.deleteButton}>
+      <Button
+        type="button"
+        disabled={deleting}
+        onClick={handleDelete}
+        className={styles.deleteButton}
+      >
         Delete route
       </Button>
       {deleteErrorMessage ? <ErrorState message={deleteErrorMessage} /> : null}

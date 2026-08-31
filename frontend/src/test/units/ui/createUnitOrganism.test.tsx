@@ -2,7 +2,10 @@ import { describe, it, expect } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MockedProvider } from '@apollo/client/testing/react';
-import { CREATE_UNIT_MUTATION, UNITS_QUERY } from '@/features/units/infrastructure/units.graphql';
+import {
+  CREATE_UNIT_MUTATION,
+  UNITS_QUERY,
+} from '@/features/units/infrastructure/units.graphql';
 import { CreateUnitOrganism } from '@/features/units/ui/organisms/createUnitOrganism';
 import { UnitEditProvider } from '@/features/units/ui/context/unitEditContext';
 
@@ -15,7 +18,11 @@ describe('CreateUnitOrganism', () => {
           query: CREATE_UNIT_MUTATION,
           variables: { input: { name: 'Truck 1', driverName: 'Alex' } },
         },
-        result: { data: { createUnit: { id: '1', name: 'Truck 1', driverName: 'Alex' } } },
+        result: {
+          data: {
+            createUnit: { id: '1', name: 'Truck 1', driverName: 'Alex' },
+          },
+        },
       },
       { request: { query: UNITS_QUERY }, result: { data: { units: [] } } },
     ];

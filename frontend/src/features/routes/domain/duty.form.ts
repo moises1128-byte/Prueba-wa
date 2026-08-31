@@ -18,7 +18,11 @@ export const dutyFormDefinition = z
 
 export type TDutyForm = z.infer<typeof dutyFormDefinition>;
 
-export function dutyDefaultValues(partial?: { unitId?: string; startsAt?: string; endsAt?: string }): TDutyForm {
+export function dutyDefaultValues(partial?: {
+  unitId?: string;
+  startsAt?: string;
+  endsAt?: string;
+}): TDutyForm {
   return {
     unitId: partial?.unitId ?? '',
     startsAt: partial?.startsAt ?? '',

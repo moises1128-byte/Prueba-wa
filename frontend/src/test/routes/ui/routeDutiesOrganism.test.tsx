@@ -18,7 +18,9 @@ const baseMocks = [
   },
   {
     request: { query: UNITS_FOR_DUTY_FORM_QUERY },
-    result: { data: { units: [{ id: 'unit-1', name: 'Truck 1', driverName: 'Alex' }] } },
+    result: {
+      data: { units: [{ id: 'unit-1', name: 'Truck 1', driverName: 'Alex' }] },
+    },
   },
 ];
 
@@ -44,7 +46,10 @@ describe('RouteDutiesOrganism', () => {
         },
         result: {
           errors: [
-            { message: 'Duty overlaps with existing duty duty-9', extensions: { code: 'dutyOverlap' } },
+            {
+              message: 'Duty overlaps with existing duty duty-9',
+              extensions: { code: 'dutyOverlap' },
+            },
           ],
         },
       },
@@ -58,13 +63,22 @@ describe('RouteDutiesOrganism', () => {
 
     await screen.findByText('No duties assigned to this route yet');
     await screen.findByText('Truck 1 — Alex');
-    await user.selectOptions(screen.getByRole('combobox', { name: 'Unit' }), 'unit-1');
-    fireEvent.change(screen.getByLabelText('Start time'), { target: { value: startsAt } });
-    fireEvent.change(screen.getByLabelText('End time'), { target: { value: endsAt } });
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Unit' }),
+      'unit-1',
+    );
+    fireEvent.change(screen.getByLabelText('Start time'), {
+      target: { value: startsAt },
+    });
+    fireEvent.change(screen.getByLabelText('End time'), {
+      target: { value: endsAt },
+    });
     await user.click(screen.getByRole('button', { name: 'Assign duty' }));
 
     expect(
-      await screen.findByText('This unit already has a duty during that window.'),
+      await screen.findByText(
+        'This unit already has a duty during that window.',
+      ),
     ).toBeInTheDocument();
   });
 
@@ -118,9 +132,16 @@ describe('RouteDutiesOrganism', () => {
 
     await screen.findByText('No duties assigned to this route yet');
     await screen.findByText('Truck 1 — Alex');
-    await user.selectOptions(screen.getByRole('combobox', { name: 'Unit' }), 'unit-1');
-    fireEvent.change(screen.getByLabelText('Start time'), { target: { value: startsAt } });
-    fireEvent.change(screen.getByLabelText('End time'), { target: { value: endsAt } });
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Unit' }),
+      'unit-1',
+    );
+    fireEvent.change(screen.getByLabelText('Start time'), {
+      target: { value: startsAt },
+    });
+    fireEvent.change(screen.getByLabelText('End time'), {
+      target: { value: endsAt },
+    });
     await user.click(screen.getByRole('button', { name: 'Assign duty' }));
 
     expect(await screen.findByText('Truck 1 (Alex)')).toBeInTheDocument();
@@ -147,7 +168,11 @@ describe('RouteDutiesOrganism', () => {
       },
       {
         request: { query: UNITS_FOR_DUTY_FORM_QUERY },
-        result: { data: { units: [{ id: 'unit-1', name: 'Truck 1', driverName: 'Alex' }] } },
+        result: {
+          data: {
+            units: [{ id: 'unit-1', name: 'Truck 1', driverName: 'Alex' }],
+          },
+        },
       },
       {
         request: {
@@ -163,7 +188,10 @@ describe('RouteDutiesOrganism', () => {
         },
         result: {
           errors: [
-            { message: 'Duty overlaps with existing duty duty-7', extensions: { code: 'dutyOverlap' } },
+            {
+              message: 'Duty overlaps with existing duty duty-7',
+              extensions: { code: 'dutyOverlap' },
+            },
           ],
         },
       },
@@ -176,16 +204,25 @@ describe('RouteDutiesOrganism', () => {
     );
 
     await screen.findByText('Truck 1 — Alex');
-    await user.selectOptions(screen.getByRole('combobox', { name: 'Unit' }), 'unit-1');
-    fireEvent.change(screen.getByLabelText('Start time'), { target: { value: startsAt } });
-    fireEvent.change(screen.getByLabelText('End time'), { target: { value: endsAt } });
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Unit' }),
+      'unit-1',
+    );
+    fireEvent.change(screen.getByLabelText('Start time'), {
+      target: { value: startsAt },
+    });
+    fireEvent.change(screen.getByLabelText('End time'), {
+      target: { value: endsAt },
+    });
     await user.click(screen.getByRole('button', { name: 'Assign duty' }));
 
     expect(await screen.findByText(overlapMessage)).toBeInTheDocument();
 
     // Switching into edit mode hides the create-form error...
     await user.click(screen.getByRole('button', { name: 'Edit' }));
-    await waitFor(() => expect(screen.queryByText(overlapMessage)).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.queryByText(overlapMessage)).not.toBeInTheDocument(),
+    );
 
     // ...and cancelling back out must not bring it back on a form nobody submitted.
     await user.click(screen.getByRole('button', { name: 'Cancel' }));

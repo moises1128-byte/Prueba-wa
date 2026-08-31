@@ -13,7 +13,9 @@ describe('RouteMapOrganism', () => {
     const mocks = [
       {
         request: { query: ROUTE_QUERY, variables: { id: '1' } },
-        result: { data: { route: { id: '1', name: 'Empty route', points: [] } } },
+        result: {
+          data: { route: { id: '1', name: 'Empty route', points: [] } },
+        },
       },
     ];
     render(
@@ -21,7 +23,9 @@ describe('RouteMapOrganism', () => {
         <RouteMapOrganism routeId="1" />
       </MockedProvider>,
     );
-    expect(await screen.findByText('This route has no points yet')).toBeInTheDocument();
+    expect(
+      await screen.findByText('This route has no points yet'),
+    ).toBeInTheDocument();
   });
 
   it('shows "Route not found" when the route does not exist', async () => {

@@ -1,5 +1,8 @@
 import { useMutation } from '@apollo/client/react';
-import { UPDATE_UNIT_MUTATION, UNITS_QUERY } from '../../infrastructure/units.graphql';
+import {
+  UPDATE_UNIT_MUTATION,
+  UNITS_QUERY,
+} from '../../infrastructure/units.graphql';
 import { fromUnitFormInput } from '../../infrastructure/units.transform';
 import type { TUnitForm } from '../../domain/unit.form';
 

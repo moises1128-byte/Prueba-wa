@@ -16,7 +16,9 @@ export function useRoute(id: string) {
     variables: { id },
   });
   return {
-    data: data ? ((data.route ? toRouteDomain(data.route) : null) as Route | null) : undefined,
+    data: data
+      ? ((data.route ? toRouteDomain(data.route) : null) as Route | null)
+      : undefined,
     loading,
     error,
   };

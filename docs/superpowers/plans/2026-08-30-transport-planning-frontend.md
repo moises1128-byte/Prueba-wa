@@ -34,6 +34,7 @@
 ## Task 1: Tooling — dependencies, Vitest, and Apollo Client v4 doc corrections
 
 **Files:**
+
 - Modify: `frontend/package.json`
 - Create: `frontend/vitest.config.ts`
 - Create: `frontend/src/test/setup.ts`
@@ -45,6 +46,7 @@
 - Modify: `agent_docs/frontend/testing.md`
 
 **Interfaces:**
+
 - Produces: `getGraphQLErrorCode` is NOT defined here (Task 2) but every later task's mutation-error handling depends on the corrected import paths documented in this task.
 
 - [ ] **Step 1: Install dependencies**
@@ -215,7 +217,7 @@ import { gql } from '@apollo/client';
 
 Replace the section:
 
-```markdown
+````markdown
 `ApolloError` distinguishes network errors (`error.networkError`) from GraphQL errors returned by
 the server (`error.graphQLErrors`) — each item in `graphQLErrors` carries `extensions.code`, the
 same domain error code the backend attaches (see `agent_docs/backend/error-handling.md`).
@@ -225,7 +227,9 @@ if (error?.graphQLErrors[0]?.extensions?.code === 'dutyOverlap') {
   // matched a specific backend domain error
 }
 ```
-```
+````
+
+````
 
 with:
 
@@ -243,8 +247,9 @@ import { getGraphQLErrorCode } from '@/shared/utils/getGraphQLErrorCode';
 if (getGraphQLErrorCode(error) === 'dutyOverlap') {
   // matched a specific backend domain error
 }
-```
-```
+````
+
+````
 
 And update the use-case example's catch block from:
 
@@ -253,7 +258,7 @@ And update the use-case example's catch block from:
       ? error.graphQLErrors[0]?.extensions?.code
       : undefined;
     if (code === 'dutyOverlap')
-```
+````
 
 to:
 
@@ -292,6 +297,7 @@ git commit -m "chore(frontend): install deps, wire Vitest, correct docs for Apol
 ## Task 2: Shared foundation — Apollo wiring, routes, design tokens, atoms/molecules
 
 **Files:**
+
 - Create: `frontend/src/lib/apolloClient.ts`
 - Create: `frontend/src/context/apolloProvider.tsx`
 - Create: `frontend/src/shared/routes/routes.ts`
@@ -308,6 +314,7 @@ git commit -m "chore(frontend): install deps, wire Vitest, correct docs for Apol
 - Delete: `frontend/src/app/page.module.css`
 
 **Interfaces:**
+
 - Produces: `routeBuilders.routes()`, `routeBuilders.routeDetail(id)`, `routeBuilders.units()` — every later `Link`/`router.push` call uses these. `getGraphQLErrorCode(error): string | undefined` — every mutation-error branch in later tasks uses this. `Button`, `Input`, `Spinner`, `EmptyState`, `ErrorState` from `@/shared/ui/...` — every organism in later tasks uses these.
 
 - [ ] **Step 1: Apollo Client instance**
@@ -460,7 +467,10 @@ type ButtonProps = ComponentProps<'button'>;
 
 export function Button({ children, className, ...props }: ButtonProps) {
   return (
-    <button className={[styles.button, className].filter(Boolean).join(' ')} {...props}>
+    <button
+      className={[styles.button, className].filter(Boolean).join(' ')}
+      {...props}
+    >
       {children}
     </button>
   );
@@ -497,7 +507,12 @@ import styles from './input.module.css';
 type InputProps = ComponentProps<'input'>;
 
 export function Input({ className, ...props }: InputProps) {
-  return <input className={[styles.input, className].filter(Boolean).join(' ')} {...props} />;
+  return (
+    <input
+      className={[styles.input, className].filter(Boolean).join(' ')}
+      {...props}
+    />
+  );
 }
 ```
 
@@ -704,6 +719,7 @@ git commit -m "feat(frontend): Apollo Client wiring, route builders, design toke
 ## Task 3: Units feature — full CRUD
 
 **Files:**
+
 - Create: `frontend/src/features/units/domain/unit.model.ts`
 - Create: `frontend/src/features/units/domain/unit.form.ts`
 - Create: `frontend/src/features/units/infrastructure/units.graphql.ts`
@@ -724,6 +740,7 @@ git commit -m "feat(frontend): Apollo Client wiring, route builders, design toke
 - Test: `frontend/src/test/units/ui/createUnitOrganism.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `Button`, `Input`, `Spinner`, `EmptyState`, `ErrorState` from `@/shared/ui/...` (Task 2). `routeBuilders` not needed here (no navigation out of `/units`).
 - Produces: nothing consumed by other features — `units` never imports anything Route/Duty-related, and nothing in `routes` imports from `units` (the `routes` feature defines its own minimal units-for-dropdown query in Task 7, per the "no cross-feature imports" rule).
 
@@ -749,17 +766,26 @@ import { unitFormDefinition } from '@/features/units/domain/unit.form';
 
 describe('unitFormDefinition', () => {
   it('accepts a valid unit', () => {
-    const result = unitFormDefinition.safeParse({ name: 'Truck 1', driverName: 'Alex' });
+    const result = unitFormDefinition.safeParse({
+      name: 'Truck 1',
+      driverName: 'Alex',
+    });
     expect(result.success).toBe(true);
   });
 
   it('rejects an empty name', () => {
-    const result = unitFormDefinition.safeParse({ name: '', driverName: 'Alex' });
+    const result = unitFormDefinition.safeParse({
+      name: '',
+      driverName: 'Alex',
+    });
     expect(result.success).toBe(false);
   });
 
   it('rejects an empty driver name', () => {
-    const result = unitFormDefinition.safeParse({ name: 'Truck 1', driverName: '' });
+    const result = unitFormDefinition.safeParse({
+      name: 'Truck 1',
+      driverName: '',
+    });
     expect(result.success).toBe(false);
   });
 });
@@ -900,7 +926,10 @@ Create `frontend/src/features/units/application/mutations/useCreateUnit.mutation
 
 ```typescript
 import { useMutation } from '@apollo/client/react';
-import { CREATE_UNIT_MUTATION, UNITS_QUERY } from '../../infrastructure/units.graphql';
+import {
+  CREATE_UNIT_MUTATION,
+  UNITS_QUERY,
+} from '../../infrastructure/units.graphql';
 import { fromUnitFormInput } from '../../infrastructure/units.transform';
 import type { TUnitForm } from '../../domain/unit.form';
 
@@ -921,7 +950,10 @@ Create `frontend/src/features/units/application/mutations/useUpdateUnit.mutation
 
 ```typescript
 import { useMutation } from '@apollo/client/react';
-import { UPDATE_UNIT_MUTATION, UNITS_QUERY } from '../../infrastructure/units.graphql';
+import {
+  UPDATE_UNIT_MUTATION,
+  UNITS_QUERY,
+} from '../../infrastructure/units.graphql';
 import { fromUnitFormInput } from '../../infrastructure/units.transform';
 import type { TUnitForm } from '../../domain/unit.form';
 
@@ -942,7 +974,10 @@ Create `frontend/src/features/units/application/mutations/useDeleteUnit.mutation
 
 ```typescript
 import { useMutation } from '@apollo/client/react';
-import { DELETE_UNIT_MUTATION, UNITS_QUERY } from '../../infrastructure/units.graphql';
+import {
+  DELETE_UNIT_MUTATION,
+  UNITS_QUERY,
+} from '../../infrastructure/units.graphql';
 
 export function useDeleteUnit() {
   const [mutate, { loading, error }] = useMutation(DELETE_UNIT_MUTATION, {
@@ -989,12 +1024,17 @@ export function UnitEditProvider({ children }: { children: React.ReactNode }) {
     [editingUnit],
   );
 
-  return <UnitEditContext.Provider value={value}>{children}</UnitEditContext.Provider>;
+  return (
+    <UnitEditContext.Provider value={value}>
+      {children}
+    </UnitEditContext.Provider>
+  );
 }
 
 export function useUnitEdit(): UnitEditContextValue {
   const ctx = React.useContext(UnitEditContext);
-  if (!ctx) throw new Error('useUnitEdit must be used within a UnitEditProvider');
+  if (!ctx)
+    throw new Error('useUnitEdit must be used within a UnitEditProvider');
   return ctx;
 }
 ```
@@ -1019,7 +1059,12 @@ interface UnitFormContentProps {
   onCancel?: () => void;
 }
 
-export function UnitFormContent({ disabled, error, submitLabel, onCancel }: UnitFormContentProps) {
+export function UnitFormContent({
+  disabled,
+  error,
+  submitLabel,
+  onCancel,
+}: UnitFormContentProps) {
   const {
     register,
     formState: { errors },
@@ -1027,10 +1072,22 @@ export function UnitFormContent({ disabled, error, submitLabel, onCancel }: Unit
 
   return (
     <div className={styles.form}>
-      <Input {...register('name')} disabled={disabled} placeholder="Unit name" />
-      {errors.name ? <p className={styles.error}>{errors.name.message}</p> : null}
-      <Input {...register('driverName')} disabled={disabled} placeholder="Driver name" />
-      {errors.driverName ? <p className={styles.error}>{errors.driverName.message}</p> : null}
+      <Input
+        {...register('name')}
+        disabled={disabled}
+        placeholder="Unit name"
+      />
+      {errors.name ? (
+        <p className={styles.error}>{errors.name.message}</p>
+      ) : null}
+      <Input
+        {...register('driverName')}
+        disabled={disabled}
+        placeholder="Driver name"
+      />
+      {errors.driverName ? (
+        <p className={styles.error}>{errors.driverName.message}</p>
+      ) : null}
       {error ? <p className={styles.error}>{error}</p> : null}
       <div className={styles.actions}>
         <Button type="submit" disabled={disabled}>
@@ -1077,7 +1134,11 @@ Create `frontend/src/features/units/ui/organisms/createUnitOrganism.tsx`:
 
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { unitFormDefinition, unitDefaultValues, type TUnitForm } from '../../domain/unit.form';
+import {
+  unitFormDefinition,
+  unitDefaultValues,
+  type TUnitForm,
+} from '../../domain/unit.form';
 import { useCreateUnit } from '../../application/mutations/useCreateUnit.mutation';
 import { useUpdateUnit } from '../../application/mutations/useUpdateUnit.mutation';
 import { UnitFormContent } from '../molecules/unitFormContent';
@@ -1172,7 +1233,12 @@ export function UnitListOrganism() {
         </thead>
         <tbody>
           {data.map((unit) => (
-            <tr key={unit.id} className={unit.id === editingUnit?.id ? styles.editing : undefined}>
+            <tr
+              key={unit.id}
+              className={
+                unit.id === editingUnit?.id ? styles.editing : undefined
+              }
+            >
               <td>{unit.name}</td>
               <td>{unit.driverName}</td>
               <td className={styles.actions}>
@@ -1291,7 +1357,9 @@ describe('UnitListOrganism', () => {
     const mocks = [
       {
         request: { query: UNITS_QUERY },
-        result: { data: { units: [{ id: '1', name: 'Truck 1', driverName: 'Alex' }] } },
+        result: {
+          data: { units: [{ id: '1', name: 'Truck 1', driverName: 'Alex' }] },
+        },
       },
     ];
     render(
@@ -1306,7 +1374,9 @@ describe('UnitListOrganism', () => {
   });
 
   it('shows an empty state when there are no units', async () => {
-    const mocks = [{ request: { query: UNITS_QUERY }, result: { data: { units: [] } } }];
+    const mocks = [
+      { request: { query: UNITS_QUERY }, result: { data: { units: [] } } },
+    ];
     render(
       <MockedProvider mocks={mocks}>
         <UnitEditProvider>
@@ -1326,7 +1396,10 @@ import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MockedProvider } from '@apollo/client/testing/react';
-import { CREATE_UNIT_MUTATION, UNITS_QUERY } from '@/features/units/infrastructure/units.graphql';
+import {
+  CREATE_UNIT_MUTATION,
+  UNITS_QUERY,
+} from '@/features/units/infrastructure/units.graphql';
 import { CreateUnitOrganism } from '@/features/units/ui/organisms/createUnitOrganism';
 import { UnitEditProvider } from '@/features/units/ui/context/unitEditContext';
 
@@ -1339,7 +1412,11 @@ describe('CreateUnitOrganism', () => {
           query: CREATE_UNIT_MUTATION,
           variables: { input: { name: 'Truck 1', driverName: 'Alex' } },
         },
-        result: { data: { createUnit: { id: '1', name: 'Truck 1', driverName: 'Alex' } } },
+        result: {
+          data: {
+            createUnit: { id: '1', name: 'Truck 1', driverName: 'Alex' },
+          },
+        },
       },
       { request: { query: UNITS_QUERY }, result: { data: { units: [] } } },
     ];
@@ -1356,7 +1433,9 @@ describe('CreateUnitOrganism', () => {
     await user.type(screen.getByPlaceholderText('Driver name'), 'Alex');
     await user.click(screen.getByRole('button', { name: 'Create unit' }));
 
-    expect(await screen.findByRole('button', { name: 'Create unit' })).toBeEnabled();
+    expect(
+      await screen.findByRole('button', { name: 'Create unit' }),
+    ).toBeEnabled();
   });
 });
 ```
@@ -1388,6 +1467,7 @@ git commit -m "feat(frontend): units feature — list, create, inline edit, dele
 ## Task 4: Routes feature — list + create (no detail page yet)
 
 **Files:**
+
 - Create: `frontend/src/features/routes/domain/route.model.ts`
 - Create: `frontend/src/features/routes/domain/route.form.ts`
 - Create: `frontend/src/features/routes/infrastructure/routes.graphql.ts`
@@ -1406,6 +1486,7 @@ git commit -m "feat(frontend): units feature — list, create, inline edit, dele
 - Test: `frontend/src/test/routes/ui/routeListOrganism.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `Button`, `Input`, `Spinner`, `EmptyState`, `ErrorState` (Task 2), `routeBuilders.routeDetail(id)` (Task 2).
 - Produces: `useRoute(id)` (Task 5+ organisms — Map, Edit — consume this same hook; Apollo's cache normalizes by id so multiple organisms calling it concurrently share one network request). `ROUTES_QUERY` (Task 7's duty mutations refetch it so route cards' duty counts stay live).
 
@@ -1457,7 +1538,9 @@ describe('routeFormDefinition', () => {
   });
 
   it('rejects an out-of-range latitude', () => {
-    const result = routeFormDefinition.safeParse({ points: [{ lat: 200, lng: 20 }] });
+    const result = routeFormDefinition.safeParse({
+      points: [{ lat: 200, lng: 20 }],
+    });
     expect(result.success).toBe(false);
   });
 });
@@ -1479,14 +1562,22 @@ Create `frontend/src/features/routes/domain/route.form.ts`:
 import { z } from 'zod';
 
 export const routePointFormDefinition = z.object({
-  lat: z.number().min(-90, 'Latitude must be between -90 and 90').max(90, 'Latitude must be between -90 and 90'),
-  lng: z.number().min(-180, 'Longitude must be between -180 and 180').max(180, 'Longitude must be between -180 and 180'),
+  lat: z
+    .number()
+    .min(-90, 'Latitude must be between -90 and 90')
+    .max(90, 'Latitude must be between -90 and 90'),
+  lng: z
+    .number()
+    .min(-180, 'Longitude must be between -180 and 180')
+    .max(180, 'Longitude must be between -180 and 180'),
   name: z.string().optional(),
 });
 
 export const routeFormDefinition = z.object({
   name: z.string().optional(),
-  points: z.array(routePointFormDefinition).min(1, 'At least one point is required'),
+  points: z
+    .array(routePointFormDefinition)
+    .min(1, 'At least one point is required'),
 });
 
 export type TRouteForm = z.infer<typeof routeFormDefinition>;
@@ -1679,7 +1770,9 @@ export function useRoute(id: string) {
     variables: { id },
   });
   return {
-    data: data ? ((data.route ? toRouteDomain(data.route) : null) as Route | null) : undefined,
+    data: data
+      ? ((data.route ? toRouteDomain(data.route) : null) as Route | null)
+      : undefined,
     loading,
     error,
   };
@@ -1694,7 +1787,10 @@ Create `frontend/src/features/routes/application/mutations/useCreateRoute.mutati
 
 ```typescript
 import { useMutation } from '@apollo/client/react';
-import { CREATE_ROUTE_MUTATION, ROUTES_QUERY } from '../../infrastructure/routes.graphql';
+import {
+  CREATE_ROUTE_MUTATION,
+  ROUTES_QUERY,
+} from '../../infrastructure/routes.graphql';
 import { fromRouteFormInput } from '../../infrastructure/routes.transform';
 import type { TRouteForm } from '../../domain/route.form';
 
@@ -1779,7 +1875,11 @@ interface RouteFormContentProps {
   submitLabel: string;
 }
 
-export function RouteFormContent({ disabled, error, submitLabel }: RouteFormContentProps) {
+export function RouteFormContent({
+  disabled,
+  error,
+  submitLabel,
+}: RouteFormContentProps) {
   const {
     register,
     control,
@@ -1789,7 +1889,11 @@ export function RouteFormContent({ disabled, error, submitLabel }: RouteFormCont
 
   return (
     <div className={styles.form}>
-      <Input {...register('name')} disabled={disabled} placeholder="Route name (optional)" />
+      <Input
+        {...register('name')}
+        disabled={disabled}
+        placeholder="Route name (optional)"
+      />
       <div className={styles.points}>
         {fields.map((field, index) => (
           <div key={field.id} className={styles.pointRow}>
@@ -1807,15 +1911,29 @@ export function RouteFormContent({ disabled, error, submitLabel }: RouteFormCont
               step="any"
               placeholder="Longitude"
             />
-            <Input {...register(`points.${index}.name`)} disabled={disabled} placeholder="Point name (optional)" />
-            <Button type="button" disabled={disabled || fields.length === 1} onClick={() => remove(index)}>
+            <Input
+              {...register(`points.${index}.name`)}
+              disabled={disabled}
+              placeholder="Point name (optional)"
+            />
+            <Button
+              type="button"
+              disabled={disabled || fields.length === 1}
+              onClick={() => remove(index)}
+            >
               Remove
             </Button>
           </div>
         ))}
       </div>
-      {errors.points?.message ? <p className={styles.error}>{errors.points.message}</p> : null}
-      <Button type="button" disabled={disabled} onClick={() => append({ lat: 0, lng: 0, name: '' })}>
+      {errors.points?.message ? (
+        <p className={styles.error}>{errors.points.message}</p>
+      ) : null}
+      <Button
+        type="button"
+        disabled={disabled}
+        onClick={() => append({ lat: 0, lng: 0, name: '' })}
+      >
         Add point
       </Button>
       {error ? <p className={styles.error}>{error}</p> : null}
@@ -1912,7 +2030,11 @@ Create `frontend/src/features/routes/ui/organisms/createRouteOrganism.tsx`:
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { routeFormDefinition, routeDefaultValues, type TRouteForm } from '../../domain/route.form';
+import {
+  routeFormDefinition,
+  routeDefaultValues,
+  type TRouteForm,
+} from '../../domain/route.form';
 import { useCreateRoute } from '../../application/mutations/useCreateRoute.mutation';
 import { RouteFormContent } from '../molecules/routeFormContent';
 import { routeBuilders } from '@/shared/routes/routes';
@@ -1936,7 +2058,11 @@ export function CreateRouteOrganism() {
   return (
     <FormProvider {...methods}>
       <form onSubmit={methods.handleSubmit(onSubmit)}>
-        <RouteFormContent disabled={loading} error={error?.message} submitLabel="Create route" />
+        <RouteFormContent
+          disabled={loading}
+          error={error?.message}
+          submitLabel="Create route"
+        />
       </form>
     </FormProvider>
   );
@@ -2014,7 +2140,12 @@ describe('RouteListOrganism', () => {
         result: {
           data: {
             routes: [
-              { id: '1', name: 'Downtown loop', points: [{ lat: 1, lng: 2, name: null }], duties: [] },
+              {
+                id: '1',
+                name: 'Downtown loop',
+                points: [{ lat: 1, lng: 2, name: null }],
+                duties: [],
+              },
             ],
           },
         },
@@ -2030,7 +2161,9 @@ describe('RouteListOrganism', () => {
   });
 
   it('shows an empty state when there are no routes', async () => {
-    const mocks = [{ request: { query: ROUTES_QUERY }, result: { data: { routes: [] } } }];
+    const mocks = [
+      { request: { query: ROUTES_QUERY }, result: { data: { routes: [] } } },
+    ];
     render(
       <MockedProvider mocks={mocks}>
         <RouteListOrganism />
@@ -2061,6 +2194,7 @@ git commit -m "feat(frontend): routes feature — list and create"
 ## Task 5: Routes feature — detail page shell, edit, delete
 
 **Files:**
+
 - Create: `frontend/src/features/routes/application/mutations/useUpdateRoute.mutation.ts`
 - Create: `frontend/src/features/routes/application/mutations/useDeleteRoute.mutation.ts`
 - Create: `frontend/src/features/routes/ui/organisms/editRouteOrganism.tsx` + `.module.css`
@@ -2070,6 +2204,7 @@ git commit -m "feat(frontend): routes feature — list and create"
 - Test: `frontend/src/test/routes/ui/editRouteOrganism.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `useRoute(id)` (Task 4), `ROUTE_QUERY`/`UPDATE_ROUTE_MUTATION`/`DELETE_ROUTE_MUTATION`/`ROUTES_QUERY` (Task 4), `RouteFormContent` (Task 4), `getGraphQLErrorCode` (Task 2).
 - Produces: `RouteDetailTemplate({ routeId })` — Task 6 modifies this file to add `RouteMapOrganism`, Task 7 modifies it again to add `RouteDutiesOrganism`.
 
@@ -2079,7 +2214,11 @@ Create `frontend/src/features/routes/application/mutations/useUpdateRoute.mutati
 
 ```typescript
 import { useMutation } from '@apollo/client/react';
-import { UPDATE_ROUTE_MUTATION, ROUTES_QUERY, ROUTE_QUERY } from '../../infrastructure/routes.graphql';
+import {
+  UPDATE_ROUTE_MUTATION,
+  ROUTES_QUERY,
+  ROUTE_QUERY,
+} from '../../infrastructure/routes.graphql';
 import { fromRouteFormInput } from '../../infrastructure/routes.transform';
 import type { TRouteForm } from '../../domain/route.form';
 
@@ -2089,7 +2228,10 @@ export function useUpdateRoute() {
   async function updateRoute(id: string, form: TRouteForm) {
     return mutate({
       variables: { id, input: fromRouteFormInput(form) },
-      refetchQueries: [{ query: ROUTE_QUERY, variables: { id } }, { query: ROUTES_QUERY }],
+      refetchQueries: [
+        { query: ROUTE_QUERY, variables: { id } },
+        { query: ROUTES_QUERY },
+      ],
     });
   }
 
@@ -2103,7 +2245,10 @@ Create `frontend/src/features/routes/application/mutations/useDeleteRoute.mutati
 
 ```typescript
 import { useMutation } from '@apollo/client/react';
-import { DELETE_ROUTE_MUTATION, ROUTES_QUERY } from '../../infrastructure/routes.graphql';
+import {
+  DELETE_ROUTE_MUTATION,
+  ROUTES_QUERY,
+} from '../../infrastructure/routes.graphql';
 
 export function useDeleteRoute() {
   const [mutate, { loading, error }] = useMutation(DELETE_ROUTE_MUTATION, {
@@ -2128,7 +2273,11 @@ Create `frontend/src/features/routes/ui/organisms/editRouteOrganism.tsx`:
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { routeFormDefinition, routeDefaultValues, type TRouteForm } from '../../domain/route.form';
+import {
+  routeFormDefinition,
+  routeDefaultValues,
+  type TRouteForm,
+} from '../../domain/route.form';
 import { useRoute } from '../../application/queries/useRoute.query';
 import { useUpdateRoute } from '../../application/mutations/useUpdateRoute.mutation';
 import { useDeleteRoute } from '../../application/mutations/useDeleteRoute.mutation';
@@ -2147,8 +2296,16 @@ interface EditRouteOrganismProps {
 export function EditRouteOrganism({ routeId }: EditRouteOrganismProps) {
   const router = useRouter();
   const { data: route, loading, error } = useRoute(routeId);
-  const { updateRoute, loading: updating, error: updateError } = useUpdateRoute();
-  const { deleteRoute, loading: deleting, error: deleteError } = useDeleteRoute();
+  const {
+    updateRoute,
+    loading: updating,
+    error: updateError,
+  } = useUpdateRoute();
+  const {
+    deleteRoute,
+    loading: deleting,
+    error: deleteError,
+  } = useDeleteRoute();
 
   const methods = useForm<TRouteForm>({
     values: route ? routeDefaultValues(route) : undefined,
@@ -2181,10 +2338,19 @@ export function EditRouteOrganism({ routeId }: EditRouteOrganismProps) {
     <div>
       <FormProvider {...methods}>
         <form onSubmit={methods.handleSubmit(onSubmit)}>
-          <RouteFormContent disabled={updating} error={updateError?.message} submitLabel="Save changes" />
+          <RouteFormContent
+            disabled={updating}
+            error={updateError?.message}
+            submitLabel="Save changes"
+          />
         </form>
       </FormProvider>
-      <Button type="button" disabled={deleting} onClick={handleDelete} className={styles.deleteButton}>
+      <Button
+        type="button"
+        disabled={deleting}
+        onClick={handleDelete}
+        className={styles.deleteButton}
+      >
         Delete route
       </Button>
       {deleteErrorMessage ? <ErrorState message={deleteErrorMessage} /> : null}
@@ -2257,7 +2423,9 @@ import { RouteDetailPage } from '@/features/routes/ui/pages/routeDetailPage';
 
 export const metadata = { title: 'Route detail' };
 
-export default async function RouteDetailRoute({ params }: PageProps<'/routes/[id]'>) {
+export default async function RouteDetailRoute({
+  params,
+}: PageProps<'/routes/[id]'>) {
   const { id } = await params;
   return <RouteDetailPage routeId={id} />;
 }
@@ -2295,7 +2463,13 @@ describe('EditRouteOrganism', () => {
       {
         request: { query: ROUTE_QUERY, variables: { id: '1' } },
         result: {
-          data: { route: { id: '1', name: 'Downtown loop', points: [{ lat: 1, lng: 2, name: 'Start' }] } },
+          data: {
+            route: {
+              id: '1',
+              name: 'Downtown loop',
+              points: [{ lat: 1, lng: 2, name: 'Start' }],
+            },
+          },
         },
       },
     ];
@@ -2304,7 +2478,9 @@ describe('EditRouteOrganism', () => {
         <EditRouteOrganism routeId="1" />
       </MockedProvider>,
     );
-    expect(await screen.findByDisplayValue('Downtown loop')).toBeInTheDocument();
+    expect(
+      await screen.findByDisplayValue('Downtown loop'),
+    ).toBeInTheDocument();
   });
 });
 ```
@@ -2329,12 +2505,14 @@ git commit -m "feat(frontend): route detail page — edit and delete"
 ## Task 6: Route detail — map (Leaflet + OpenStreetMap)
 
 **Files:**
+
 - Create: `frontend/src/features/routes/ui/organisms/routeMapOrganism.tsx`
 - Create: `frontend/src/features/routes/ui/organisms/routeLeafletMap.tsx` + `.module.css`
 - Modify: `frontend/src/features/routes/ui/templates/routeDetailTemplate.tsx`
 - Test: `frontend/src/test/routes/ui/routeMapOrganism.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `useRoute(id)` (Task 4).
 
 - [ ] **Step 1: Leaflet map internals (client-only)**
@@ -2344,7 +2522,13 @@ Create `frontend/src/features/routes/ui/organisms/routeLeafletMap.tsx`:
 ```tsx
 'use client';
 
-import { MapContainer, TileLayer, Marker, Polyline, Popup } from 'react-leaflet';
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Polyline,
+  Popup,
+} from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { RoutePoint } from '../../domain/route.model';
@@ -2352,7 +2536,8 @@ import styles from './routeLeafletMap.module.css';
 
 const markerIcon = L.icon({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  iconRetinaUrl:
+    'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
   iconSize: [25, 41],
   iconAnchor: [12, 41],
@@ -2424,7 +2609,8 @@ export function RouteMapOrganism({ routeId }: RouteMapOrganismProps) {
   if (loading) return <Spinner />;
   if (error) return <ErrorState message="Could not load the map" />;
   if (!route) return <ErrorState message="Route not found" />;
-  if (!route.points.length) return <EmptyState message="This route has no points yet" />;
+  if (!route.points.length)
+    return <EmptyState message="This route has no points yet" />;
 
   return <RouteLeafletMap points={route.points} />;
 }
@@ -2475,7 +2661,9 @@ describe('RouteMapOrganism', () => {
     const mocks = [
       {
         request: { query: ROUTE_QUERY, variables: { id: '1' } },
-        result: { data: { route: { id: '1', name: 'Empty route', points: [] } } },
+        result: {
+          data: { route: { id: '1', name: 'Empty route', points: [] } },
+        },
       },
     ];
     render(
@@ -2483,7 +2671,9 @@ describe('RouteMapOrganism', () => {
         <RouteMapOrganism routeId="1" />
       </MockedProvider>,
     );
-    expect(await screen.findByText('This route has no points yet')).toBeInTheDocument();
+    expect(
+      await screen.findByText('This route has no points yet'),
+    ).toBeInTheDocument();
   });
 
   it('shows "Route not found" when the route does not exist', async () => {
@@ -2526,9 +2716,10 @@ git commit -m "feat(frontend): route detail map (Leaflet + OpenStreetMap)"
 
 ## Task 7: Route detail — duty scheduling (the overlap-error requirement)
 
-This is the task the spec calls out explicitly: *"A `DutyOverlapError` from the backend surfaces as an inline form error... not a generic toast; it's the rule the whole exercise is about, so it deserves visible, specific feedback."*
+This is the task the spec calls out explicitly: _"A `DutyOverlapError` from the backend surfaces as an inline form error... not a generic toast; it's the rule the whole exercise is about, so it deserves visible, specific feedback."_
 
 **Files:**
+
 - Create: `frontend/src/features/routes/domain/duty.model.ts`
 - Create: `frontend/src/features/routes/domain/duty.logic.ts`
 - Create: `frontend/src/features/routes/domain/duty.form.ts`
@@ -2547,6 +2738,7 @@ This is the task the spec calls out explicitly: *"A `DutyOverlapError` from the 
 - Test: `frontend/src/test/routes/ui/routeDutiesOrganism.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `ROUTES_QUERY` (Task 4, refetched so route cards' duty counts stay live).
 - Note: defines its own minimal units query (`UNITS_FOR_DUTY_FORM_QUERY`) rather than importing anything from the `units` feature — cross-feature imports are forbidden (`agent_docs/frontend/import-boundaries.md`); the query is 4 lines and not worth promoting to `shared/` for a single second consumer.
 
@@ -2651,7 +2843,11 @@ export const dutyFormDefinition = z
 
 export type TDutyForm = z.infer<typeof dutyFormDefinition>;
 
-export function dutyDefaultValues(partial?: { unitId?: string; startsAt?: string; endsAt?: string }): TDutyForm {
+export function dutyDefaultValues(partial?: {
+  unitId?: string;
+  startsAt?: string;
+  endsAt?: string;
+}): TDutyForm {
   return {
     unitId: partial?.unitId ?? '',
     startsAt: partial?.startsAt ?? '',
@@ -2796,9 +2992,12 @@ interface RouteDutiesQueryData {
 }
 
 export function useRouteDuties(routeId: string) {
-  const { data, loading, error } = useQuery<RouteDutiesQueryData>(ROUTE_DUTIES_QUERY, {
-    variables: { routeId },
-  });
+  const { data, loading, error } = useQuery<RouteDutiesQueryData>(
+    ROUTE_DUTIES_QUERY,
+    {
+      variables: { routeId },
+    },
+  );
   return {
     data: data?.route?.duties.map(toDutyDomain) as Duty[] | undefined,
     loading,
@@ -2818,7 +3017,9 @@ interface UnitsForDutyFormData {
 }
 
 export function useUnitsForDutyForm() {
-  const { data, loading, error } = useQuery<UnitsForDutyFormData>(UNITS_FOR_DUTY_FORM_QUERY);
+  const { data, loading, error } = useQuery<UnitsForDutyFormData>(
+    UNITS_FOR_DUTY_FORM_QUERY,
+  );
   return { data: data?.units, loading, error };
 }
 ```
@@ -2829,14 +3030,20 @@ Create `frontend/src/features/routes/application/mutations/useCreateDuty.mutatio
 
 ```typescript
 import { useMutation } from '@apollo/client/react';
-import { CREATE_DUTY_MUTATION, ROUTE_DUTIES_QUERY } from '../../infrastructure/duties.graphql';
+import {
+  CREATE_DUTY_MUTATION,
+  ROUTE_DUTIES_QUERY,
+} from '../../infrastructure/duties.graphql';
 import { ROUTES_QUERY } from '../../infrastructure/routes.graphql';
 import { fromCreateDutyInput } from '../../infrastructure/duties.transform';
 import type { TDutyForm } from '../../domain/duty.form';
 
 export function useCreateDuty(routeId: string) {
   const [mutate, { loading, error }] = useMutation(CREATE_DUTY_MUTATION, {
-    refetchQueries: [{ query: ROUTE_DUTIES_QUERY, variables: { routeId } }, { query: ROUTES_QUERY }],
+    refetchQueries: [
+      { query: ROUTE_DUTIES_QUERY, variables: { routeId } },
+      { query: ROUTES_QUERY },
+    ],
   });
 
   async function createDuty(form: TDutyForm) {
@@ -2851,7 +3058,10 @@ Create `frontend/src/features/routes/application/mutations/useUpdateDuty.mutatio
 
 ```typescript
 import { useMutation } from '@apollo/client/react';
-import { UPDATE_DUTY_MUTATION, ROUTE_DUTIES_QUERY } from '../../infrastructure/duties.graphql';
+import {
+  UPDATE_DUTY_MUTATION,
+  ROUTE_DUTIES_QUERY,
+} from '../../infrastructure/duties.graphql';
 import { fromUpdateDutyInput } from '../../infrastructure/duties.transform';
 import type { TDutyForm } from '../../domain/duty.form';
 
@@ -2872,12 +3082,18 @@ Create `frontend/src/features/routes/application/mutations/useDeleteDuty.mutatio
 
 ```typescript
 import { useMutation } from '@apollo/client/react';
-import { DELETE_DUTY_MUTATION, ROUTE_DUTIES_QUERY } from '../../infrastructure/duties.graphql';
+import {
+  DELETE_DUTY_MUTATION,
+  ROUTE_DUTIES_QUERY,
+} from '../../infrastructure/duties.graphql';
 import { ROUTES_QUERY } from '../../infrastructure/routes.graphql';
 
 export function useDeleteDuty(routeId: string) {
   const [mutate, { loading, error }] = useMutation(DELETE_DUTY_MUTATION, {
-    refetchQueries: [{ query: ROUTE_DUTIES_QUERY, variables: { routeId } }, { query: ROUTES_QUERY }],
+    refetchQueries: [
+      { query: ROUTE_DUTIES_QUERY, variables: { routeId } },
+      { query: ROUTES_QUERY },
+    ],
   });
 
   async function deleteDuty(id: string) {
@@ -2964,7 +3180,13 @@ interface DutyFormContentProps {
   onCancel?: () => void;
 }
 
-export function DutyFormContent({ units, disabled, error, submitLabel, onCancel }: DutyFormContentProps) {
+export function DutyFormContent({
+  units,
+  disabled,
+  error,
+  submitLabel,
+  onCancel,
+}: DutyFormContentProps) {
   const {
     register,
     formState: { errors },
@@ -2972,7 +3194,12 @@ export function DutyFormContent({ units, disabled, error, submitLabel, onCancel 
 
   return (
     <div className={styles.form}>
-      <select {...register('unitId')} aria-label="Unit" disabled={disabled} className={styles.select}>
+      <select
+        {...register('unitId')}
+        aria-label="Unit"
+        disabled={disabled}
+        className={styles.select}
+      >
         <option value="">Select a unit</option>
         {units.map((unit) => (
           <option key={unit.id} value={unit.id}>
@@ -2980,7 +3207,9 @@ export function DutyFormContent({ units, disabled, error, submitLabel, onCancel 
           </option>
         ))}
       </select>
-      {errors.unitId ? <p className={styles.error}>{errors.unitId.message}</p> : null}
+      {errors.unitId ? (
+        <p className={styles.error}>{errors.unitId.message}</p>
+      ) : null}
       <input
         {...register('startsAt')}
         aria-label="Start time"
@@ -2988,7 +3217,9 @@ export function DutyFormContent({ units, disabled, error, submitLabel, onCancel 
         type="datetime-local"
         className={styles.input}
       />
-      {errors.startsAt ? <p className={styles.error}>{errors.startsAt.message}</p> : null}
+      {errors.startsAt ? (
+        <p className={styles.error}>{errors.startsAt.message}</p>
+      ) : null}
       <input
         {...register('endsAt')}
         aria-label="End time"
@@ -2996,7 +3227,9 @@ export function DutyFormContent({ units, disabled, error, submitLabel, onCancel 
         type="datetime-local"
         className={styles.input}
       />
-      {errors.endsAt ? <p className={styles.error}>{errors.endsAt.message}</p> : null}
+      {errors.endsAt ? (
+        <p className={styles.error}>{errors.endsAt.message}</p>
+      ) : null}
       {error ? <p className={styles.error}>{error}</p> : null}
       <div className={styles.actions}>
         <Button type="submit" disabled={disabled}>
@@ -3057,7 +3290,11 @@ import { useUnitsForDutyForm } from '../../application/queries/useUnitsForDutyFo
 import { useCreateDuty } from '../../application/mutations/useCreateDuty.mutation';
 import { useUpdateDuty } from '../../application/mutations/useUpdateDuty.mutation';
 import { useDeleteDuty } from '../../application/mutations/useDeleteDuty.mutation';
-import { dutyFormDefinition, dutyDefaultValues, type TDutyForm } from '../../domain/duty.form';
+import {
+  dutyFormDefinition,
+  dutyDefaultValues,
+  type TDutyForm,
+} from '../../domain/duty.form';
 import { toDatetimeLocalValue } from '../../domain/duty.logic';
 import { DutyRow } from '../molecules/dutyRow';
 import { DutyFormContent } from '../molecules/dutyFormContent';
@@ -3075,16 +3312,26 @@ interface RouteDutiesOrganismProps {
 function dutyErrorMessage(error: unknown): string | undefined {
   if (!error) return undefined;
   const code = getGraphQLErrorCode(error);
-  if (code === 'dutyOverlap') return 'This unit already has a duty during that window.';
-  if (code === 'invalidDutyWindow') return 'The end time must be after the start time.';
+  if (code === 'dutyOverlap')
+    return 'This unit already has a duty during that window.';
+  if (code === 'invalidDutyWindow')
+    return 'The end time must be after the start time.';
   return 'Failed to save duty. Please try again.';
 }
 
 export function RouteDutiesOrganism({ routeId }: RouteDutiesOrganismProps) {
   const { data: duties, loading, error } = useRouteDuties(routeId);
   const { data: units } = useUnitsForDutyForm();
-  const { createDuty, loading: creating, error: createError } = useCreateDuty(routeId);
-  const { updateDuty, loading: updating, error: updateError } = useUpdateDuty(routeId);
+  const {
+    createDuty,
+    loading: creating,
+    error: createError,
+  } = useCreateDuty(routeId);
+  const {
+    updateDuty,
+    loading: updating,
+    error: updateError,
+  } = useUpdateDuty(routeId);
   const { deleteDuty } = useDeleteDuty(routeId);
   const [editingDuty, setEditingDuty] = React.useState<Duty | null>(null);
 
@@ -3218,7 +3465,9 @@ const baseMocks = [
   },
   {
     request: { query: UNITS_FOR_DUTY_FORM_QUERY },
-    result: { data: { units: [{ id: 'unit-1', name: 'Truck 1', driverName: 'Alex' }] } },
+    result: {
+      data: { units: [{ id: 'unit-1', name: 'Truck 1', driverName: 'Alex' }] },
+    },
   },
 ];
 
@@ -3244,7 +3493,10 @@ describe('RouteDutiesOrganism', () => {
         },
         result: {
           errors: [
-            { message: 'Duty overlaps with existing duty duty-9', extensions: { code: 'dutyOverlap' } },
+            {
+              message: 'Duty overlaps with existing duty duty-9',
+              extensions: { code: 'dutyOverlap' },
+            },
           ],
         },
       },
@@ -3257,13 +3509,22 @@ describe('RouteDutiesOrganism', () => {
     );
 
     await screen.findByText('No duties assigned to this route yet');
-    await user.selectOptions(screen.getByRole('combobox', { name: 'Unit' }), 'unit-1');
-    fireEvent.change(screen.getByLabelText('Start time'), { target: { value: startsAt } });
-    fireEvent.change(screen.getByLabelText('End time'), { target: { value: endsAt } });
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Unit' }),
+      'unit-1',
+    );
+    fireEvent.change(screen.getByLabelText('Start time'), {
+      target: { value: startsAt },
+    });
+    fireEvent.change(screen.getByLabelText('End time'), {
+      target: { value: endsAt },
+    });
     await user.click(screen.getByRole('button', { name: 'Assign duty' }));
 
     expect(
-      await screen.findByText('This unit already has a duty during that window.'),
+      await screen.findByText(
+        'This unit already has a duty during that window.',
+      ),
     ).toBeInTheDocument();
   });
 
@@ -3316,9 +3577,16 @@ describe('RouteDutiesOrganism', () => {
     );
 
     await screen.findByText('No duties assigned to this route yet');
-    await user.selectOptions(screen.getByRole('combobox', { name: 'Unit' }), 'unit-1');
-    fireEvent.change(screen.getByLabelText('Start time'), { target: { value: startsAt } });
-    fireEvent.change(screen.getByLabelText('End time'), { target: { value: endsAt } });
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Unit' }),
+      'unit-1',
+    );
+    fireEvent.change(screen.getByLabelText('Start time'), {
+      target: { value: startsAt },
+    });
+    fireEvent.change(screen.getByLabelText('End time'), {
+      target: { value: endsAt },
+    });
     await user.click(screen.getByRole('button', { name: 'Assign duty' }));
 
     expect(await screen.findByText('Truck 1 (Alex)')).toBeInTheDocument();
@@ -3343,7 +3611,7 @@ pnpm lint
 
 - [ ] **Step 18: Manually verify the overlap rule end to end**
 
-With backend + MongoDB running and `pnpm dev` up: on a route's detail page, assign a duty to a unit for a window, then try to assign a second, overlapping duty to the *same* unit — confirm the inline error appears next to the form (not a toast), and that a non-overlapping duty for the same unit succeeds.
+With backend + MongoDB running and `pnpm dev` up: on a route's detail page, assign a duty to a unit for a window, then try to assign a second, overlapping duty to the _same_ unit — confirm the inline error appears next to the form (not a toast), and that a non-overlapping duty for the same unit succeeds.
 
 - [ ] **Step 19: Commit**
 
@@ -3357,6 +3625,7 @@ git commit -m "feat(frontend): duty scheduling on the route detail page, with in
 ## Task 8: Final integration — README, full validation pass, manual walkthrough
 
 **Files:**
+
 - Modify: `README.md`
 
 - [ ] **Step 1: Update the README's stack table and commands**
@@ -3364,20 +3633,20 @@ git commit -m "feat(frontend): duty scheduling on the route detail page, with in
 In `README.md`, change the `Mapa` row of the stack table from:
 
 ```markdown
-| Mapa       | Por definir con el prompt del MVP     |
+| Mapa | Por definir con el prompt del MVP |
 ```
 
 to:
 
 ```markdown
-| Mapa       | Leaflet + OpenStreetMap (react-leaflet) |
+| Mapa | Leaflet + OpenStreetMap (react-leaflet) |
 ```
 
 And in the `## Calidad` section, add a frontend test line after the frontend build line:
 
 ```markdown
-pnpm --filter frontend build  # typecheck + build
-pnpm --filter frontend test   # Vitest + React Testing Library
+pnpm --filter frontend build # typecheck + build
+pnpm --filter frontend test # Vitest + React Testing Library
 ```
 
 - [ ] **Step 2: Full validation pass — backend untouched, frontend clean**

@@ -29,7 +29,13 @@ describe('EditRouteOrganism', () => {
       {
         request: { query: ROUTE_QUERY, variables: { id: '1' } },
         result: {
-          data: { route: { id: '1', name: 'Downtown loop', points: [{ lat: 1, lng: 2, name: 'Start' }] } },
+          data: {
+            route: {
+              id: '1',
+              name: 'Downtown loop',
+              points: [{ lat: 1, lng: 2, name: 'Start' }],
+            },
+          },
         },
       },
     ];
@@ -38,6 +44,8 @@ describe('EditRouteOrganism', () => {
         <EditRouteOrganism routeId="1" />
       </MockedProvider>,
     );
-    expect(await screen.findByDisplayValue('Downtown loop')).toBeInTheDocument();
+    expect(
+      await screen.findByDisplayValue('Downtown loop'),
+    ).toBeInTheDocument();
   });
 });
