@@ -88,35 +88,54 @@ export function RouteDutiesOrganism({ routeId }: RouteDutiesOrganismProps) {
     });
   }
 
-  if (loading) return <Spinner />;
-  if (error) return <ErrorState message="No se pudieron cargar los duties" />;
+  let content: React.ReactNode;
+  if (loading) {
+    content = <Spinner />;
+  } else if (error) {
+    content = <ErrorState message="No se pudieron cargar los duties" />;
+  } else {
+    content = (
+      <>
+        <div className={styles.subsection}>
+          <h3 className={styles.subheading}>
+            {editingDuty ? 'Editar duty' : 'Asignar duty'}
+          </h3>
+          <FormProvider {...methods}>
+            <form onSubmit={methods.handleSubmit(onSubmit)}>
+              <DutyFormContent
+                units={units ?? []}
+                disabled={saving}
+                submitLabel={editingDuty ? 'Guardar cambios' : 'Asignar duty'}
+                onCancel={editingDuty ? () => setEditingDuty(null) : undefined}
+              />
+            </form>
+          </FormProvider>
+        </div>
+        <div className={styles.subsection}>
+          <h3 className={styles.subheading}>Duties asignados</h3>
+          {!duties?.length ? (
+            <EmptyState message="Todavía no hay duties asignados a esta ruta" />
+          ) : (
+            <div className={styles.list}>
+              {duties.map((duty) => (
+                <DutyRow
+                  key={duty.id}
+                  duty={duty}
+                  onEdit={() => setEditingDuty(duty)}
+                  onDelete={() => handleDelete(duty.id)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </>
+    );
+  }
 
   return (
-    <div className={styles.section}>
-      <FormProvider {...methods}>
-        <form onSubmit={methods.handleSubmit(onSubmit)}>
-          <DutyFormContent
-            units={units ?? []}
-            disabled={saving}
-            submitLabel={editingDuty ? 'Guardar cambios' : 'Asignar duty'}
-            onCancel={editingDuty ? () => setEditingDuty(null) : undefined}
-          />
-        </form>
-      </FormProvider>
-      {!duties?.length ? (
-        <EmptyState message="Todavía no hay duties asignados a esta ruta" />
-      ) : (
-        <div className={styles.list}>
-          {duties.map((duty) => (
-            <DutyRow
-              key={duty.id}
-              duty={duty}
-              onEdit={() => setEditingDuty(duty)}
-              onDelete={() => handleDelete(duty.id)}
-            />
-          ))}
-        </div>
-      )}
-    </div>
+    <section className={styles.section}>
+      <h2 className={styles.heading}>Duties de esta ruta</h2>
+      {content}
+    </section>
   );
 }

@@ -4,6 +4,24 @@
   gap: var(--space-md);
 }
 
+.heading {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.subsection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.subheading {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
 .list {
   display: flex;
   flex-direction: column;

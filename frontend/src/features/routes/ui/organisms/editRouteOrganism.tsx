@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
@@ -60,10 +61,6 @@ export function EditRouteOrganism({ routeId }: EditRouteOrganismProps) {
     resolver: zodResolver(routeFormDefinition),
   });
 
-  if (loading) return <Spinner />;
-  if (error) return <ErrorState message="No se pudo cargar esta ruta" />;
-  if (!route) return <ErrorState message="Ruta no encontrada" />;
-
   // Apollo's `useMutation` rejects on a GraphQL error, and react-hook-form's
   // handleSubmit re-throws whatever the submit handler throws — so the rejection
   // has to be caught here or it escapes as an unhandled rejection. Catching it
@@ -87,21 +84,42 @@ export function EditRouteOrganism({ routeId }: EditRouteOrganismProps) {
       });
   }
 
+  let content: ReactNode;
+  if (loading) {
+    content = <Spinner />;
+  } else if (error) {
+    content = <ErrorState message="No se pudo cargar esta ruta" />;
+  } else if (!route) {
+    content = <ErrorState message="Ruta no encontrada" />;
+  } else {
+    content = (
+      <>
+        <FormProvider {...methods}>
+          <form onSubmit={methods.handleSubmit(onSubmit)}>
+            <RouteFormContent
+              disabled={updating}
+              submitLabel="Guardar cambios"
+            />
+          </form>
+        </FormProvider>
+        <Button
+          type="button"
+          disabled={deleting}
+          onClick={handleDelete}
+          className={styles.deleteButton}
+        >
+          Eliminar ruta
+        </Button>
+      </>
+    );
+  }
+
   return (
-    <div>
-      <FormProvider {...methods}>
-        <form onSubmit={methods.handleSubmit(onSubmit)}>
-          <RouteFormContent disabled={updating} submitLabel="Guardar cambios" />
-        </form>
-      </FormProvider>
-      <Button
-        type="button"
-        disabled={deleting}
-        onClick={handleDelete}
-        className={styles.deleteButton}
-      >
-        Eliminar ruta
-      </Button>
-    </div>
+    <section className={styles.section}>
+      <h2 className={styles.heading}>
+        Editar ruta{route?.name ? `: ${route.name}` : ''}
+      </h2>
+      {content}
+    </section>
   );
 }
