@@ -100,7 +100,7 @@ This is where almost all of the real business logic — and all of the concurren
 
 ### CreateDutyUseCase
 
-- **Input:** `{ routeId: string; unitId: string; startsAt: Date; endsAt: Date }`
+- **Input:** `{ routeId: string; unitId: string; startsAt: Date; endsAt: Date; description?: string }`
 - **Throws:**
   - `RouteNotFoundError` if `routeId` doesn't match an existing route.
   - `UnitNotFoundError` if `unitId` doesn't match an existing unit.
@@ -124,8 +124,9 @@ This is where almost all of the real business logic — and all of the concurren
 ### UpdateDutyUseCase
 
 The most edge-case-heavy use case in the codebase. **Input:** `id: string`,
-`{ routeId?: string; unitId?: string; startsAt?: Date; endsAt?: Date }` (all fields optional —
-omitted fields keep their current value).
+`{ routeId?: string; unitId?: string; startsAt?: Date; endsAt?: Date; description?: string }` (all
+fields optional — omitted fields keep their current value). `description` never affects the
+overlap guard or the no-op short-circuit below — it's not part of the window/unit identity.
 
 - **Throws:**
   - `DutyNotFoundError` if no duty matches `id`.

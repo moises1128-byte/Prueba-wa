@@ -94,6 +94,14 @@ todo IA.
 - **Reemplazar el `confirm()` nativo del navegador por un modal propio.** El diálogo nativo
   ("localhost:3000 dice...") se ve poco profesional y no se puede estilizar — pedí un modal
   consistente con el resto de la UI.
+- **Pulir la UI navegándola como la usaría un usuario real, no solo revisando el código.** Con la
+  app ya funcionando encontré varios detalles que en el código se veían bien pero en pantalla
+  confundían: los campos de latitud/longitud de un punto de ruta no dejaban claro qué esperaban
+  (el placeholder quedaba tapado por un valor por defecto de `0`), lo mismo con los campos del
+  formulario de turnos (hora de partida/llegada, unidad), y el botón "Eliminar ruta" se veía como
+  una barra roja que rompía el layout en vez de un botón normal. Pedí etiquetas visibles siempre
+  (no solo un placeholder que desaparece con cualquier valor) y corregí el ancho del botón — ningún
+  test se rompió por estos cambios porque son puramente de presentación.
 - **Mantener la palabra "duty" sin traducir, y después revertir esa decisión.** Al principio
   preferí dejarla así en vez de traducirla a "turno" o "asignación" (que la IA había sugerido),
   para no introducir un término que no uso en la conversación real con el equipo. Después, ya con

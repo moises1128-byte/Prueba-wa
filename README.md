@@ -48,6 +48,26 @@ pnpm --filter backend start:dev
 pnpm --filter frontend dev
 ```
 
+## Documentación de la API
+
+No hay Swagger ni OpenAPI en este proyecto **a propósito, no por omisión**: ambos son formatos
+pensados para describir múltiples endpoints REST (rutas, verbos, códigos de estado por endpoint), y
+acá no hay ninguno — toda la API es un solo endpoint GraphQL (`/graphql`), así que OpenAPI no tiene
+qué describir.
+
+Lo que GraphQL usa en su lugar es su propio mecanismo de introspección: el schema completo (tipos,
+inputs, queries, mutations) es auto-descriptivo y consultable en tiempo real. Con el backend
+corriendo, **Apollo Sandbox en `http://localhost:3001/graphql`** es el equivalente exacto a Swagger
+UI — muestra cada tipo, cada campo, cada query/mutation con su firma, y permite ejecutar requests de
+prueba directo desde el navegador.
+
+Además, cada tipo, campo, query y mutation del schema tiene una descripción escrita a mano (vía el
+parámetro `description` de los decoradores `@ObjectType`/`@Field`/`@Query`/`@Mutation` de NestJS),
+que aparece en el explorador de Apollo Sandbox igual que una descripción de endpoint en Swagger — por
+ejemplo, `createDuty` documenta ahí mismo que lanza `dutyOverlap` si la unidad ya tiene un turno en
+esa ventana. El archivo generado (`backend/src/schema.gql`, gitignored porque se regenera solo al
+levantar el backend) es la fuente de verdad del contrato de la API.
+
 ## Calidad
 
 ```bash
@@ -83,8 +103,12 @@ ventana horaria).
 - **Borrar una ruta o unidad con duties activos se bloquea**, no se hace en cascada — hay que sacar
   los duties primero.
 - **Frontend**: lista y creación de unidades y rutas, detalle de ruta con mapa (Leaflet +
-  OpenStreetMap, sin API key), lista de duties de esa ruta con asignar/editar/borrar, y el error de
-  solapamiento como mensaje específico (toast), no un error genérico.
+  OpenStreetMap, sin API key), tabla de duties de esa ruta (conductor, descripción opcional, hora
+  de partida/llegada) con asignar/editar/borrar, y el error de solapamiento como mensaje específico
+  (toast), no un error genérico.
+- **Estado de una ruta (activa/inactiva)** mostrado como badge en la lista de rutas — calculado a
+  partir de si tiene duties asignados (`dutyCount > 0`), no un campo guardado aparte que haya que
+  mantener sincronizado.
 - **Toda la interfaz en español**, con notificaciones toast para errores de acciones (crear, editar,
   borrar) y validación de campo mostrada junto al campo que falló.
 - **Tests**: dominio puro (reglas de solapamiento, entidades), casos de uso con repositorios
