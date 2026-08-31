@@ -31,4 +31,12 @@ export class UpdateDutyInput {
   @IsOptional()
   @IsDate()
   endsAt?: Date;
+
+  @Field({
+    nullable: true,
+    description: 'New free-text note about this duty.',
+  })
+  @IsOptional()
+  @IsString()
+  description?: string;
 }

@@ -9,6 +9,7 @@ export interface DutyProps {
   unitId: UnitId;
   startsAt: Date;
   endsAt: Date;
+  description?: string;
 }
 
 function assertValidWindow(startsAt: Date, endsAt: Date): void {
@@ -23,6 +24,7 @@ export class Duty {
     unitId: UnitId;
     startsAt: Date;
     endsAt: Date;
+    description?: string;
   }): Duty {
     assertValidWindow(props.startsAt, props.endsAt);
     return new Duty({ id: DutyId.generate(), ...props });
@@ -52,11 +54,16 @@ export class Duty {
     return this.props.endsAt;
   }
 
+  get description(): string | undefined {
+    return this.props.description;
+  }
+
   update(props: {
     routeId?: RouteId;
     unitId?: UnitId;
     startsAt?: Date;
     endsAt?: Date;
+    description?: string;
   }): Duty {
     const next: DutyProps = {
       id: this.props.id,
@@ -64,6 +71,7 @@ export class Duty {
       unitId: props.unitId ?? this.props.unitId,
       startsAt: props.startsAt ?? this.props.startsAt,
       endsAt: props.endsAt ?? this.props.endsAt,
+      description: props.description ?? this.props.description,
     };
     assertValidWindow(next.startsAt, next.endsAt);
     return new Duty(next);

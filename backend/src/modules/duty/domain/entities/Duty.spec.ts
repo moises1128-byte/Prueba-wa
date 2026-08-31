@@ -53,4 +53,23 @@ describe('Duty', () => {
       duty.update({ endsAt: new Date('2026-01-01T00:00:00Z') }),
     ).toThrow(InvalidDutyWindowError);
   });
+
+  it('description is optional and preserved across update() unless overridden', () => {
+    const duty = Duty.create({
+      routeId,
+      unitId,
+      startsAt: new Date('2026-01-01T08:00:00Z'),
+      endsAt: new Date('2026-01-01T16:00:00Z'),
+      description: 'Turno matutino',
+    });
+    expect(duty.description).toBe('Turno matutino');
+
+    const untouched = duty.update({
+      endsAt: new Date('2026-01-01T18:00:00Z'),
+    });
+    expect(untouched.description).toBe('Turno matutino');
+
+    const overridden = duty.update({ description: 'Turno vespertino' });
+    expect(overridden.description).toBe('Turno vespertino');
+  });
 });

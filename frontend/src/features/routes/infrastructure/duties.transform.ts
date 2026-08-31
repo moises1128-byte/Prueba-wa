@@ -7,6 +7,7 @@ interface DutyDto {
   unitId: string;
   startsAt: string;
   endsAt: string;
+  description?: string | null;
   unit: { id: string; name: string; driverName: string };
 }
 
@@ -16,6 +17,7 @@ export function toDutyDomain(dto: DutyDto): Duty {
     unitId: dto.unitId,
     startsAt: new Date(dto.startsAt),
     endsAt: new Date(dto.endsAt),
+    description: dto.description ?? null,
     unit: dto.unit,
   };
 }
@@ -26,6 +28,7 @@ export function fromCreateDutyInput(routeId: string, form: TDutyForm) {
     unitId: form.unitId,
     startsAt: fromDatetimeLocalValue(form.startsAt).toISOString(),
     endsAt: fromDatetimeLocalValue(form.endsAt).toISOString(),
+    ...(form.description ? { description: form.description } : {}),
   };
 }
 
@@ -34,5 +37,6 @@ export function fromUpdateDutyInput(form: TDutyForm) {
     unitId: form.unitId,
     startsAt: fromDatetimeLocalValue(form.startsAt).toISOString(),
     endsAt: fromDatetimeLocalValue(form.endsAt).toISOString(),
+    ...(form.description ? { description: form.description } : {}),
   };
 }

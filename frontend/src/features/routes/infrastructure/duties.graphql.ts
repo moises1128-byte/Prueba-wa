@@ -9,6 +9,7 @@ export const ROUTE_DUTIES_QUERY = gql`
         unitId
         startsAt
         endsAt
+        description
         unit {
           id
           name

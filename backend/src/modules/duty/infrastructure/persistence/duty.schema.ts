@@ -17,6 +17,9 @@ export class DutyDocument {
 
   @Prop({ required: true })
   endsAt: Date;
+
+  @Prop({ type: String, required: false })
+  description?: string;
 }
 
 export type DutyDocumentType = HydratedDocument<DutyDocument>;

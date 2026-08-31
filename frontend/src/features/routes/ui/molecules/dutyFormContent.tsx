@@ -61,6 +61,17 @@ export function DutyFormContent({
       {errors.endsAt ? (
         <p className={styles.error}>{errors.endsAt.message}</p>
       ) : null}
+      <input
+        {...register('description')}
+        aria-label="Descripción"
+        placeholder="Descripción (opcional)"
+        disabled={disabled}
+        type="text"
+        className={styles.input}
+      />
+      {errors.description ? (
+        <p className={styles.error}>{errors.description.message}</p>
+      ) : null}
       <div className={styles.actions}>
         <Button type="submit" disabled={disabled}>
           {submitLabel}

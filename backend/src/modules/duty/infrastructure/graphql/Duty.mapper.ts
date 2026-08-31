@@ -8,5 +8,6 @@ export function toDutyType(duty: Duty): DutyType {
     unitId: duty.unitId.value,
     startsAt: duty.startsAt,
     endsAt: duty.endsAt,
+    description: duty.description,
   };
 }

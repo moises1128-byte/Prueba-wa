@@ -60,6 +60,7 @@ export class DutyRepositoryAdapter implements DutyRepository {
       unitId: UnitId.restore(doc.unitId),
       startsAt: doc.startsAt,
       endsAt: doc.endsAt,
+      description: doc.description,
     });
   }
 
@@ -70,6 +71,7 @@ export class DutyRepositoryAdapter implements DutyRepository {
       unitId: duty.unitId.value,
       startsAt: duty.startsAt,
       endsAt: duty.endsAt,
+      description: duty.description,
     };
   }
 }

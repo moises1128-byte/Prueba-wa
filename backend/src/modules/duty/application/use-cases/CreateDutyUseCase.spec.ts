@@ -70,6 +70,17 @@ describe('CreateDutyUseCase', () => {
     expect(result.routeId.equals(route.id)).toBe(true);
   });
 
+  it('passes an optional description through to the created duty', async () => {
+    const result = await useCase.execute({
+      routeId: route.id.value,
+      unitId: unit.id.value,
+      description: 'Turno matutino',
+      ...input,
+    });
+
+    expect(result.description).toBe('Turno matutino');
+  });
+
   it('throws RouteNotFoundError when the route does not exist', async () => {
     vi.mocked(routeRepository.findById).mockResolvedValue(null);
     await expect(

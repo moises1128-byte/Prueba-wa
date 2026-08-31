@@ -122,6 +122,7 @@ describe('RouteDutiesOrganism', () => {
                   unitId: 'unit-1',
                   startsAt: new Date(startsAt).toISOString(),
                   endsAt: new Date(endsAt).toISOString(),
+                  description: null,
                   unit: { id: 'unit-1', name: 'Truck 1', driverName: 'Alex' },
                 },
               ],

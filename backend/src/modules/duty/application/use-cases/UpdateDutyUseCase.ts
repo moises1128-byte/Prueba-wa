@@ -19,6 +19,7 @@ export interface UpdateDutyInput {
   unitId?: string;
   startsAt?: Date;
   endsAt?: Date;
+  description?: string;
 }
 
 @Injectable()
@@ -55,6 +56,7 @@ export class UpdateDutyUseCase {
       unitId: nextUnitId,
       startsAt: input.startsAt,
       endsAt: input.endsAt,
+      description: input.description,
     });
 
     const windowUnchanged =

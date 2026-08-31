@@ -48,6 +48,21 @@ describe('DutyRepositoryAdapter', () => {
     expect(found?.startsAt).toEqual(duty.startsAt);
   });
 
+  it('persists and retrieves an optional description', async () => {
+    const duty = Duty.create({
+      routeId: RouteId.generate(),
+      unitId: UnitId.generate(),
+      startsAt: new Date('2026-01-01T08:00:00Z'),
+      endsAt: new Date('2026-01-01T16:00:00Z'),
+      description: 'Turno matutino',
+    });
+
+    await adapter.create(duty);
+    const found = await adapter.findById(duty.id);
+
+    expect(found?.description).toBe('Turno matutino');
+  });
+
   it('findByRouteId returns only duties for that route', async () => {
     const routeA = RouteId.generate();
     const routeB = RouteId.generate();

@@ -14,6 +14,7 @@ export interface CreateDutyInput {
   unitId: string;
   startsAt: Date;
   endsAt: Date;
+  description?: string;
 }
 
 @Injectable()
@@ -39,6 +40,7 @@ export class CreateDutyUseCase {
       unitId,
       startsAt: input.startsAt,
       endsAt: input.endsAt,
+      description: input.description,
     });
 
     const reserved = await this.unitRepository.reserveWindow(

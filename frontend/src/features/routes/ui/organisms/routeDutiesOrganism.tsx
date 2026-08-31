@@ -15,8 +15,8 @@ import {
   type TDutyForm,
 } from '../../domain/duty.form';
 import { toDatetimeLocalValue } from '../../domain/duty.logic';
-import { DutyRow } from '../molecules/dutyRow';
 import { DutyFormContent } from '../molecules/dutyFormContent';
+import { Button } from '@/shared/ui/atoms/button';
 import { Spinner } from '@/shared/ui/atoms/spinner';
 import { EmptyState } from '@/shared/ui/molecules/emptyState';
 import { ErrorState } from '@/shared/ui/molecules/errorState';
@@ -55,6 +55,7 @@ export function RouteDutiesOrganism({ routeId }: RouteDutiesOrganismProps) {
           unitId: editingDuty.unitId,
           startsAt: toDatetimeLocalValue(editingDuty.startsAt),
           endsAt: toDatetimeLocalValue(editingDuty.endsAt),
+          description: editingDuty.description ?? undefined,
         })
       : dutyDefaultValues(),
     resolver: zodResolver(dutyFormDefinition),
@@ -116,16 +117,48 @@ export function RouteDutiesOrganism({ routeId }: RouteDutiesOrganismProps) {
           {!duties?.length ? (
             <EmptyState message="Todavía no hay turnos asignados a esta ruta" />
           ) : (
-            <div className={styles.list}>
-              {duties.map((duty) => (
-                <DutyRow
-                  key={duty.id}
-                  duty={duty}
-                  onEdit={() => setEditingDuty(duty)}
-                  onDelete={() => handleDelete(duty.id)}
-                />
-              ))}
-            </div>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Conductor</th>
+                  <th>Descripción</th>
+                  <th>Hora de partida</th>
+                  <th>Hora de llegada</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {duties.map((duty) => (
+                  <tr
+                    key={duty.id}
+                    className={
+                      duty.id === editingDuty?.id ? styles.editing : undefined
+                    }
+                  >
+                    <td>
+                      {duty.unit.name} ({duty.unit.driverName})
+                    </td>
+                    <td>{duty.description ?? '—'}</td>
+                    <td>{duty.startsAt.toLocaleString()}</td>
+                    <td>{duty.endsAt.toLocaleString()}</td>
+                    <td className={styles.actions}>
+                      <Button
+                        type="button"
+                        onClick={() => setEditingDuty(duty)}
+                      >
+                        Editar
+                      </Button>
+                      <Button
+                        type="button"
+                        onClick={() => handleDelete(duty.id)}
+                      >
+                        Eliminar
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )}
         </div>
       </>

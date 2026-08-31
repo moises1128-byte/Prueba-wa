@@ -1,5 +1,5 @@
 import { Field, ID, InputType } from '@nestjs/graphql';
-import { IsDate, IsNotEmpty, IsString } from 'class-validator';
+import { IsDate, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 @InputType({
   description: 'Input for assigning a unit to a route for a time window.',
@@ -22,4 +22,12 @@ export class CreateDutyInput {
   @Field({ description: 'End of the duty window. Must be after startsAt.' })
   @IsDate()
   endsAt: Date;
+
+  @Field({
+    nullable: true,
+    description: 'Optional free-text note about this duty.',
+  })
+  @IsOptional()
+  @IsString()
+  description?: string;
 }

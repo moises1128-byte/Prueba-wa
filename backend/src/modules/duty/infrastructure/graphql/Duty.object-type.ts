@@ -24,6 +24,12 @@ export class DutyType {
   })
   endsAt: Date;
 
+  @Field({
+    nullable: true,
+    description: 'Optional free-text note about this duty.',
+  })
+  description?: string;
+
   // Populated by DutyResolver's @ResolveField methods, not set directly by the mapper.
   route?: RouteType;
   unit?: UnitType;
