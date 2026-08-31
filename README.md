@@ -207,3 +207,11 @@ uso por caso de uso (inputs, todos los errores que puede lanzar, y qué cubre ca
   todos los que usan la app estén en la misma zona horaria, pero para operar rutas en varias
   ciudades a la vez esto se vuelve un problema real — dos personas en zonas distintas verían
   "la misma hora" de forma diferente sin saberlo.
+
+## Imagenes del sistema MVP
+  <img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/c631dc65-46cc-44e2-9326-01bdc2ec8932" />
+  <img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/23ff079a-1b7b-4780-8b87-73d04fdbecc0" />
+  <img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/d31b387c-e1e0-4234-9962-5ee58b6f4e0e" />
+
+
+
