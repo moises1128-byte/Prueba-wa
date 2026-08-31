@@ -34,13 +34,34 @@ function dutyErrorMessage(error: unknown): string | undefined {
 export function RouteDutiesOrganism({ routeId }: RouteDutiesOrganismProps) {
   const { data: duties, loading, error } = useRouteDuties(routeId);
   const { data: units } = useUnitsForDutyForm();
-  const { createDuty, loading: creating, error: createError } = useCreateDuty(routeId);
-  const { updateDuty, loading: updating, error: updateError } = useUpdateDuty(routeId);
+  const {
+    createDuty,
+    loading: creating,
+    error: createError,
+    reset: resetCreateError,
+  } = useCreateDuty(routeId);
+  const {
+    updateDuty,
+    loading: updating,
+    error: updateError,
+    reset: resetUpdateError,
+  } = useUpdateDuty(routeId);
   const { deleteDuty, error: deleteError } = useDeleteDuty(routeId);
   const [editingDuty, setEditingDuty] = React.useState<Duty | null>(null);
 
   const saving = creating || updating;
   const saveError = editingDuty ? updateError : createError;
+
+  // Apollo keeps a mutation's `error` until that mutation is fired again, so without
+  // this the form would resurrect a stale error the moment it switches modes: fail a
+  // create with an overlap, hit "Edit" (error hides, we now read updateError), then
+  // hit "Cancel" — and the old overlap warning reappears under a blank create form the
+  // user never submitted. Clearing both on every mode change keeps each mode's error
+  // from leaking into the other.
+  React.useEffect(() => {
+    resetCreateError();
+    resetUpdateError();
+  }, [editingDuty, resetCreateError, resetUpdateError]);
 
   const methods = useForm<TDutyForm>({
     values: editingDuty

@@ -4,7 +4,7 @@ import { fromUpdateDutyInput } from '../../infrastructure/duties.transform';
 import type { TDutyForm } from '../../domain/duty.form';
 
 export function useUpdateDuty(routeId: string) {
-  const [mutate, { loading, error }] = useMutation(UPDATE_DUTY_MUTATION, {
+  const [mutate, { loading, error, reset }] = useMutation(UPDATE_DUTY_MUTATION, {
     refetchQueries: [{ query: ROUTE_DUTIES_QUERY, variables: { routeId } }],
   });
 
@@ -12,5 +12,5 @@ export function useUpdateDuty(routeId: string) {
     return mutate({ variables: { id, input: fromUpdateDutyInput(form) } });
   }
 
-  return { updateDuty, loading, error };
+  return { updateDuty, loading, error, reset };
 }
