@@ -26,13 +26,18 @@ export class RouteDutyIntegrationResolver {
     private readonly deleteRouteUseCase: DeleteRouteUseCase,
   ) {}
 
-  @ResolveField(() => [DutyType])
+  @ResolveField(() => [DutyType], {
+    description: 'The duties currently assigned to this route.',
+  })
   async duties(@Parent() route: RouteType): Promise<DutyType[]> {
     const duties = await this.getDutiesByRouteUseCase.execute(route.id);
     return duties.map(toDutyType);
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => Boolean, {
+    description:
+      'Deletes a route. Fails with a routeHasActiveDuties error if any duty is still assigned to it — remove those duties first.',
+  })
   async deleteRoute(
     @Args('id', { type: () => ID }) id: string,
   ): Promise<boolean> {

@@ -1,6 +1,6 @@
 # prueba
 
-MVP local (no publicado en GitHub). Monorepo con pnpm workspaces.
+MVP de un sistema de planificación de transporte. Monorepo con pnpm workspaces.
 
 ## Stack
 
@@ -56,3 +56,103 @@ pnpm --filter frontend test   # Vitest + React Testing Library
 
 Ver `CLAUDE.md` y `agent_docs/` (arquitectura hexagonal en el backend, capas + Atomic Design en el
 frontend).
+
+## Qué construí
+
+Un sistema de planificación de transporte con tres entidades: **rutas** (lista ordenada de puntos
+geográficos), **unidades** (vehículo + conductor asignado) y **duties** (una ruta + una unidad + una
+ventana horaria).
+
+- **La regla central**: una unidad nunca puede tener dos duties con ventanas de tiempo solapadas —
+  **ni siquiera bajo requests concurrentes**. Se garantiza con una operación atómica de MongoDB
+  sobre un solo documento (`Unit.findOneAndUpdate` con un filtro de exclusión), no con una
+  transacción ni con un lock en memoria — por lo que la garantía se sostiene aunque corran varias
+  instancias del backend. Probado con 5 requests simultáneos a nivel de repositorio y a nivel
+  HTTP/GraphQL completo.
+- **Borrar una ruta o unidad con duties activos se bloquea**, no se hace en cascada — hay que sacar
+  los duties primero.
+- **Frontend**: lista y creación de unidades y rutas, detalle de ruta con mapa (Leaflet +
+  OpenStreetMap, sin API key), lista de duties de esa ruta con asignar/editar/borrar, y el error de
+  solapamiento como mensaje específico (toast), no un error genérico.
+- **Toda la interfaz en español**, con notificaciones toast para errores de acciones (crear, editar,
+  borrar) y validación de campo mostrada junto al campo que falló.
+- **Tests**: dominio puro (reglas de solapamiento, entidades), casos de uso con repositorios
+  mockeados, integración contra MongoDB real, y el test de concurrencia (repositorio + HTTP/GraphQL
+  completo) que prueba la garantía central. En el frontend, componentes probados con Vitest +
+  Testing Library, mockeando en el borde de Apollo Client.
+
+## Concurrencia y casos borde — qué queda protegido y qué no
+
+No todos los casos borde de los use cases tienen el mismo nivel de dureza. Se endureció al máximo
+la única invariante que el ejercicio pide garantizar bajo concurrencia; el resto de las validaciones
+son las normales de un caso de uso, sin la misma protección atómica. Referencia completa, caso de
+uso por caso de uso (inputs, todos los errores que puede lanzar, y qué cubre cada uno) en
+[`agent_docs/backend/use-cases.md`](agent_docs/backend/use-cases.md).
+
+**Lo que sí está cubierto en todos los use cases:**
+
+- Validación de dominio con defensa en profundidad: `InvalidDutyWindowError` (`endsAt <= startsAt`),
+  `InvalidRoutePointError` (coordenadas fuera de rango) — el dominio revalida esto aunque el
+  frontend ya lo valide con Zod, porque un cliente GraphQL directo puede saltarse el frontend.
+- Errores "no encontrado" consistentes (`RouteNotFoundError`, `UnitNotFoundError`,
+  `DutyNotFoundError`) antes de operar sobre un id que no existe.
+- Integridad referencial al crear/editar un duty: se valida que la ruta y la unidad referenciadas
+  existan de verdad antes de guardar (evita duties huérfanos apuntando a nada).
+- Rollback en el camino de escritura de `Duty`: si la reserva atómica de `busyWindows` tiene éxito
+  pero el segundo write (persistir el documento `Duty`) falla, se libera la reserva para no dejar
+  una unidad bloqueada por un duty que nunca se llegó a guardar. En `UpdateDutyUseCase` esto se
+  maneja dos veces: si falla la nueva reserva se revierte a la ventana vieja, y si esa reversión en
+  sí falla, se lanza un error específico (`DutyReservationLostError`) en vez de tragarse el fallo.
+
+**Lo que NO tiene el mismo nivel de dureza (limitaciones conocidas, no descubiertas después):**
+
+- **El bloqueo de borrado (ruta/unidad con duties activos) no es atómico.** Es un chequeo
+  secuencial — "¿tiene duties activos? → si no, borrar" — sin garantía a nivel de documento como la
+  del guard de solapamiento. Existe una ventana de carrera teórica: si se crea un duty para esa
+  ruta/unidad justo entre el chequeo y el borrado, el borrado podría ejecutarse igual, dejando un
+  duty huérfano. No se le dio el mismo tratamiento atómico porque no era el requisito que el
+  ejercicio pedía endurecer; para el volumen de un MVP es un riesgo aceptado, no ignorado.
+- **Edición concurrente del mismo duty por dos usuarios.** No hay control de concurrencia optimista
+  (versión/timestamp) — si dos personas editan el mismo duty a la vez, gana el último write sin
+  aviso de que se pisó el cambio del otro. Es un tipo de concurrencia distinto al que protege el
+  guard de solapamiento (ahí compiten dos duties distintos por el mismo slot de una unidad; acá es
+  el mismo registro editado dos veces) y tampoco está cubierto.
+- **`DeleteDutyUseCase`** libera la ventana (`$pull` de `busyWindows`) y después borra el documento
+  `Duty`. Si el segundo paso falla después de que el primero tuvo éxito, queda una inconsistencia
+  menor (el duty sigue existiendo pero ya no bloquea su horario) — no hay rollback ni test que
+  pruebe recuperación en ese punto específico.
+
+## Qué dejé fuera conscientemente
+
+- **Autenticación/autorización.** El brief no la pidió y no hay un caso de uso claro de roles/login
+  todavía — agregarla sin eso sería inventar alcance que nadie definió.
+- **Visualización gráfica de conflictos** (mencionada como opcional en el spec). El requisito real —
+  que el conflicto se rechace y se avise — está cubierto; mostrarlo en el mapa o un timeline es una
+  mejora de UX, no una garantía de datos.
+- **Sistema de i18n real** (`next-intl`, `react-i18next`, etc.). El texto en español está escrito
+  directamente en los componentes. Para un solo idioma no vale la pena la infraestructura extra; si
+  el producto necesitara varios idiomas de verdad, ahí sí lo agregaría.
+- **CI/CD.** No hay pipeline que corra tests automáticamente en cada push — se corrieron localmente
+  y se verificaron antes de cada merge, pero no hay gate automático en GitHub.
+- **Selección de puntos de ruta haciendo click en el mapa.** Hoy es una lista de filas lat/lng
+  editables a mano — suficiente para el core, mencionado en el spec como mejora futura razonable.
+- **Servicio de mapas de producción** (Mapbox, Google Maps). Uso OpenStreetMap gratis, que alcanza
+  para el MVP pero tiene límites de uso que no serían aceptables con tráfico real.
+- **Paginación en las listas.** `/routes` y `/units` traen todos los registros de una — bien para un
+  MVP con pocos datos, no escala a miles de registros.
+- **Seeds / datos de ejemplo.** No hay script para poblar datos iniciales; hay que crearlos a mano
+  desde la UI o GraphiQL.
+
+## Qué haría distinto con más tiempo
+
+- Mostrar en el mensaje de solapamiento **cuál** es el duty conflictivo (el backend ya devuelve su
+  id; el frontend hoy lo descarta y muestra un mensaje genérico de "ya está ocupado"), y una
+  visualización simple del conflicto en el mapa o en una vista de calendario por unidad.
+- Nivelar la cobertura de tests del frontend — algunos organismos solo prueban 1-2 de sus casos
+  (por ejemplo, los estados de loading/error de un componente están cubiertos de forma dispareja).
+- CI con GitHub Actions corriendo build/lint/test en cada PR, no solo localmente.
+- Paginación o scroll infinito en las listas si el volumen de datos creciera.
+- Reconsiderar si `busyWindows` debería seguir embebido en `Unit` o pasar a una colección aparte si
+  el volumen de duties por unidad creciera mucho — hoy es la elección correcta para el volumen de un
+  MVP, pero un array que crece sin límite dentro de un documento tiene un techo práctico en MongoDB
+  (16MB por documento).

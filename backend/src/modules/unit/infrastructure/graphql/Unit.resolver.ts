@@ -17,13 +17,16 @@ export class UnitResolver {
     private readonly updateUnitUseCase: UpdateUnitUseCase,
   ) {}
 
-  @Query(() => [UnitType])
+  @Query(() => [UnitType], { description: 'All units.' })
   async units(): Promise<UnitType[]> {
     const units = await this.getUnitsUseCase.execute();
     return units.map(toUnitType);
   }
 
-  @Query(() => UnitType, { nullable: true })
+  @Query(() => UnitType, {
+    nullable: true,
+    description: 'A single unit by id, or null if it does not exist.',
+  })
   async unit(
     @Args('id', { type: () => ID }) id: string,
   ): Promise<UnitType | null> {
@@ -31,13 +34,18 @@ export class UnitResolver {
     return unit ? toUnitType(unit) : null;
   }
 
-  @Mutation(() => UnitType)
+  @Mutation(() => UnitType, {
+    description: 'Registers a new vehicle and its driver.',
+  })
   async createUnit(@Args('input') input: CreateUnitInput): Promise<UnitType> {
     const unit = await this.createUnitUseCase.execute(input);
     return toUnitType(unit);
   }
 
-  @Mutation(() => UnitType)
+  @Mutation(() => UnitType, {
+    description:
+      "Updates a unit's name and/or driver. Omitted fields keep their current value.",
+  })
   async updateUnit(
     @Args('id', { type: () => ID }) id: string,
     @Args('input') input: UpdateUnitInput,

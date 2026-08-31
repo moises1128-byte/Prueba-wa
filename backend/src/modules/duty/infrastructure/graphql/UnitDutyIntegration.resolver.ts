@@ -12,7 +12,10 @@ export class UnitDutyIntegrationResolver {
     private readonly deleteUnitUseCase: DeleteUnitUseCase,
   ) {}
 
-  @Mutation(() => Boolean)
+  @Mutation(() => Boolean, {
+    description:
+      'Deletes a unit. Fails with a unitHasActiveDuties error if any duty is still assigned to it — remove those duties first.',
+  })
   async deleteUnit(
     @Args('id', { type: () => ID }) id: string,
   ): Promise<boolean> {

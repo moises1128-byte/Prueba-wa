@@ -39,13 +39,18 @@ export class DutyResolver {
     private readonly unitRepository: UnitRepository,
   ) {}
 
-  @Query(() => [DutyType])
+  @Query(() => [DutyType], {
+    description: 'All duties across every route and unit.',
+  })
   async duties(): Promise<DutyType[]> {
     const duties = await this.getDutiesUseCase.execute();
     return duties.map(toDutyType);
   }
 
-  @Query(() => DutyType, { nullable: true })
+  @Query(() => DutyType, {
+    nullable: true,
+    description: 'A single duty by id, or null if it does not exist.',
+  })
   async duty(
     @Args('id', { type: () => ID }) id: string,
   ): Promise<DutyType | null> {
@@ -53,13 +58,19 @@ export class DutyResolver {
     return duty ? toDutyType(duty) : null;
   }
 
-  @Mutation(() => DutyType)
+  @Mutation(() => DutyType, {
+    description:
+      'Assigns a unit to a route for a time window. Fails with a dutyOverlap error if the unit already holds a duty during any part of that window — checked atomically, so this is safe under concurrent requests.',
+  })
   async createDuty(@Args('input') input: CreateDutyInput): Promise<DutyType> {
     const duty = await this.createDutyUseCase.execute(input);
     return toDutyType(duty);
   }
 
-  @Mutation(() => DutyType)
+  @Mutation(() => DutyType, {
+    description:
+      "Updates a duty's route, unit, and/or window. Re-checks the no-overlap invariant whenever the unit or window changes.",
+  })
   async updateDuty(
     @Args('id', { type: () => ID }) id: string,
     @Args('input') input: UpdateDutyInput,
@@ -68,14 +79,19 @@ export class DutyResolver {
     return toDutyType(duty);
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => Boolean, {
+    description:
+      'Deletes a duty and frees the time window it held on its unit.',
+  })
   async deleteDuty(
     @Args('id', { type: () => ID }) id: string,
   ): Promise<boolean> {
     return this.deleteDutyUseCase.execute(id);
   }
 
-  @ResolveField(() => RouteType)
+  @ResolveField(() => RouteType, {
+    description: 'The route this duty is assigned to.',
+  })
   async route(@Parent() duty: DutyType): Promise<RouteType> {
     const route = await this.routeRepository.findById(
       RouteId.restore(duty.routeId),
@@ -84,7 +100,9 @@ export class DutyResolver {
     return toRouteType(route);
   }
 
-  @ResolveField(() => UnitType)
+  @ResolveField(() => UnitType, {
+    description: 'The unit performing this duty.',
+  })
   async unit(@Parent() duty: DutyType): Promise<UnitType> {
     const unit = await this.unitRepository.findById(
       UnitId.restore(duty.unitId),

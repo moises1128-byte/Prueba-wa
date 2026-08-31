@@ -17,13 +17,16 @@ export class RouteResolver {
     private readonly updateRouteUseCase: UpdateRouteUseCase,
   ) {}
 
-  @Query(() => [RouteType])
+  @Query(() => [RouteType], { description: 'All routes.' })
   async routes(): Promise<RouteType[]> {
     const routes = await this.getRoutesUseCase.execute();
     return routes.map(toRouteType);
   }
 
-  @Query(() => RouteType, { nullable: true })
+  @Query(() => RouteType, {
+    nullable: true,
+    description: 'A single route by id, or null if it does not exist.',
+  })
   async route(
     @Args('id', { type: () => ID }) id: string,
   ): Promise<RouteType | null> {
@@ -31,7 +34,9 @@ export class RouteResolver {
     return route ? toRouteType(route) : null;
   }
 
-  @Mutation(() => RouteType)
+  @Mutation(() => RouteType, {
+    description: 'Creates a route from an ordered list of points.',
+  })
   async createRoute(
     @Args('input') input: CreateRouteInput,
   ): Promise<RouteType> {
@@ -39,7 +44,10 @@ export class RouteResolver {
     return toRouteType(route);
   }
 
-  @Mutation(() => RouteType)
+  @Mutation(() => RouteType, {
+    description:
+      "Updates a route's name and/or points. Omitted fields keep their current value.",
+  })
   async updateRoute(
     @Args('id', { type: () => ID }) id: string,
     @Args('input') input: UpdateRouteInput,

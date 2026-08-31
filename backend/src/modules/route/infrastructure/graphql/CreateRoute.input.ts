@@ -8,14 +8,19 @@ import {
 import { Type } from 'class-transformer';
 import { PointInput } from './PointInput.js';
 
-@InputType()
+@InputType({ description: 'Input for creating a route.' })
 export class CreateRouteInput {
-  @Field({ nullable: true })
+  @Field({
+    nullable: true,
+    description: 'Optional human-readable name for the route.',
+  })
   @IsOptional()
   @IsString()
   name?: string;
 
-  @Field(() => [PointInput])
+  @Field(() => [PointInput], {
+    description: 'The points that make up the route, in driving order.',
+  })
   @ArrayNotEmpty({ message: 'A route needs at least one point' })
   @ValidateNested({ each: true })
   @Type(() => PointInput)

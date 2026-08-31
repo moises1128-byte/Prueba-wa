@@ -1,14 +1,16 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { IsNotEmpty, IsString } from 'class-validator';
 
-@InputType()
+@InputType({ description: 'Input for registering a unit.' })
 export class CreateUnitInput {
-  @Field()
+  @Field({
+    description: 'Vehicle identifier (e.g. license plate or fleet code).',
+  })
   @IsString()
   @IsNotEmpty({ message: 'Name is required' })
   name: string;
 
-  @Field()
+  @Field({ description: 'The driver assigned to this unit.' })
   @IsString()
   @IsNotEmpty({ message: 'Driver name is required' })
   driverName: string;
