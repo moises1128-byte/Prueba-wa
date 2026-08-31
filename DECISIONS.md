@@ -19,6 +19,13 @@ todo IA.
 
 ## Decisiones de arquitectura que tomé yo
 
+- **Monorepo con pnpm workspaces** (`backend/` y `frontend/` como dos paquetes, un solo lockfile),
+  en vez de dos repos separados. Para un MVP de dos apps que se desarrollan y prueban juntas me
+  pareció más simple tener todo en un solo lugar con un solo `pnpm install` y un solo `pnpm format`
+  para ambas. Deliberadamente no agregué herramienta de monorepo (Turborepo, `packages/*` con un
+  paquete de tipos compartidos): las dos apps no comparten código, solo un contrato — el schema
+  GraphQL del backend — así que un paquete compartido hubiera sido una capa de indirección sin
+  beneficio real; el frontend escribe sus propios documentos GraphQL contra ese schema a mano.
 - **GraphQL en vez de REST** para la capa de API. Lo pedí explícitamente desde el arranque del
   proyecto, antes de que se escribiera una línea de código.
 - **MongoDB pese a que el dominio tiene aristas relacionales** (`Duty` referencia una `Route` y una
