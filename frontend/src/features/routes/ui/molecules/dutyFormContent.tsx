@@ -27,7 +27,7 @@ export function DutyFormContent({
     <div className={styles.form}>
       <select
         {...register('unitId')}
-        aria-label="Unit"
+        aria-label="Unidad"
         disabled={disabled}
         className={styles.select}
       >
@@ -43,7 +43,7 @@ export function DutyFormContent({
       ) : null}
       <input
         {...register('startsAt')}
-        aria-label="Start time"
+        aria-label="Hora de inicio"
         disabled={disabled}
         type="datetime-local"
         className={styles.input}
@@ -53,7 +53,7 @@ export function DutyFormContent({
       ) : null}
       <input
         {...register('endsAt')}
-        aria-label="End time"
+        aria-label="Hora de fin"
         disabled={disabled}
         type="datetime-local"
         className={styles.input}

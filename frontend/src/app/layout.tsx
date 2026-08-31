@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: 'Planificación de Transporte',
-  description: 'Planificación de rutas, unidades y duties',
+  description: 'Planificación de rutas, unidades y turnos',
 };
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {

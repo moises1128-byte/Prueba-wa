@@ -35,7 +35,7 @@ function updateRouteErrorMessage(error: unknown): string {
 
 function deleteRouteErrorMessage(error: unknown): string {
   if (getGraphQLErrorCode(error) === 'routeHasActiveDuties') {
-    return 'Esta ruta tiene duties asignados. Quítalos antes de eliminar la ruta.';
+    return 'Esta ruta tiene turnos asignados. Quítalos antes de eliminar la ruta.';
   }
   return 'No se pudo eliminar la ruta. Inténtalo de nuevo.';
 }

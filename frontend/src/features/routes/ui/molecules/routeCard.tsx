@@ -12,7 +12,7 @@ export function RouteCard({ route }: RouteCardProps) {
     <Link href={routeBuilders.routeDetail(route.id)} className={styles.card}>
       <span className={styles.name}>{route.name ?? 'Ruta sin nombre'}</span>
       <span className={styles.meta}>
-        {route.pointCount} puntos · {route.dutyCount} duties
+        {route.pointCount} puntos · {route.dutyCount} turnos
       </span>
     </Link>
   );

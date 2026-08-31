@@ -29,7 +29,7 @@ describe('RouteListOrganism', () => {
       </MockedProvider>,
     );
     expect(await screen.findByText('Downtown loop')).toBeInTheDocument();
-    expect(screen.getByText('1 puntos · 0 duties')).toBeInTheDocument();
+    expect(screen.getByText('1 puntos · 0 turnos')).toBeInTheDocument();
   });
 
   it('shows an empty state when there are no routes', async () => {

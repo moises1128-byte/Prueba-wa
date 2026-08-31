@@ -14,7 +14,7 @@ import styles from './unitListOrganism.module.css';
 
 function deleteUnitErrorMessage(error: unknown): string {
   if (getGraphQLErrorCode(error) === 'unitHasActiveDuties') {
-    return 'Esta unidad tiene duties asignados. Quítalos antes de eliminar la unidad.';
+    return 'Esta unidad tiene turnos asignados. Quítalos antes de eliminar la unidad.';
   }
   return 'No se pudo eliminar la unidad. Inténtalo de nuevo.';
 }

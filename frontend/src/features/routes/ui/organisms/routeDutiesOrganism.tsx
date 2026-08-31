@@ -32,10 +32,10 @@ interface RouteDutiesOrganismProps {
 function saveDutyErrorMessage(error: unknown): string {
   const code = getGraphQLErrorCode(error);
   if (code === 'dutyOverlap')
-    return 'Esta unidad ya tiene un duty asignado en ese horario.';
+    return 'Esta unidad ya tiene un turno asignado en ese horario.';
   if (code === 'invalidDutyWindow')
     return 'La hora de fin debe ser posterior a la de inicio.';
-  return 'No se pudo guardar el duty. Inténtalo de nuevo.';
+  return 'No se pudo guardar el turno. Inténtalo de nuevo.';
 }
 
 export function RouteDutiesOrganism({ routeId }: RouteDutiesOrganismProps) {
@@ -82,9 +82,9 @@ export function RouteDutiesOrganism({ routeId }: RouteDutiesOrganismProps) {
   }
 
   async function handleDelete(id: string) {
-    if (!(await confirm('¿Eliminar este duty?'))) return;
+    if (!(await confirm('¿Eliminar este turno?'))) return;
     void deleteDuty(id).catch(() => {
-      toast.error('No se pudo eliminar el duty. Inténtalo de nuevo.');
+      toast.error('No se pudo eliminar el turno. Inténtalo de nuevo.');
     });
   }
 
@@ -92,29 +92,29 @@ export function RouteDutiesOrganism({ routeId }: RouteDutiesOrganismProps) {
   if (loading) {
     content = <Spinner />;
   } else if (error) {
-    content = <ErrorState message="No se pudieron cargar los duties" />;
+    content = <ErrorState message="No se pudieron cargar los turnos" />;
   } else {
     content = (
       <>
         <div className={styles.subsection}>
           <h3 className={styles.subheading}>
-            {editingDuty ? 'Editar duty' : 'Asignar duty'}
+            {editingDuty ? 'Editar turno' : 'Asignar turno'}
           </h3>
           <FormProvider {...methods}>
             <form onSubmit={methods.handleSubmit(onSubmit)}>
               <DutyFormContent
                 units={units ?? []}
                 disabled={saving}
-                submitLabel={editingDuty ? 'Guardar cambios' : 'Asignar duty'}
+                submitLabel={editingDuty ? 'Guardar cambios' : 'Asignar turno'}
                 onCancel={editingDuty ? () => setEditingDuty(null) : undefined}
               />
             </form>
           </FormProvider>
         </div>
         <div className={styles.subsection}>
-          <h3 className={styles.subheading}>Duties asignados</h3>
+          <h3 className={styles.subheading}>Turnos asignados</h3>
           {!duties?.length ? (
-            <EmptyState message="Todavía no hay duties asignados a esta ruta" />
+            <EmptyState message="Todavía no hay turnos asignados a esta ruta" />
           ) : (
             <div className={styles.list}>
               {duties.map((duty) => (
@@ -134,7 +134,7 @@ export function RouteDutiesOrganism({ routeId }: RouteDutiesOrganismProps) {
 
   return (
     <section className={styles.section}>
-      <h2 className={styles.heading}>Duties de esta ruta</h2>
+      <h2 className={styles.heading}>Turnos de esta ruta</h2>
       {content}
     </section>
   );

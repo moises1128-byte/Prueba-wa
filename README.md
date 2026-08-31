@@ -27,6 +27,17 @@ pnpm install
 
 Copia `backend/.env.example` a `backend/.env` y ajusta `MONGODB_URI` si tu Mongo local no corre en el default (`mongodb://localhost:27017/prueba`).
 
+### Datos de ejemplo
+
+```bash
+pnpm --filter backend seed
+```
+
+Crea 5 unidades, 4 rutas (por la zona de Caracas) y 5 turnos, usando los mismos use cases que
+usa la API — así que la data respeta todas las reglas de negocio, incluida la de no-solapamiento.
+Si la base ya tiene unidades cargadas, el script no hace nada (para no duplicar); borrá las
+colecciones `units`, `routes` y `duties` a mano si querés volver a correrlo desde cero.
+
 ## Desarrollo
 
 ```bash
@@ -141,8 +152,6 @@ uso por caso de uso (inputs, todos los errores que puede lanzar, y qué cubre ca
   para el MVP pero tiene límites de uso que no serían aceptables con tráfico real.
 - **Paginación en las listas.** `/routes` y `/units` traen todos los registros de una — bien para un
   MVP con pocos datos, no escala a miles de registros.
-- **Seeds / datos de ejemplo.** No hay script para poblar datos iniciales; hay que crearlos a mano
-  desde la UI o GraphiQL.
 
 ## Qué haría distinto con más tiempo
 

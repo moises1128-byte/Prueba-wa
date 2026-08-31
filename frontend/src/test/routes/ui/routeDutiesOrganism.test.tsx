@@ -68,23 +68,23 @@ describe('RouteDutiesOrganism', () => {
       </>,
     );
 
-    await screen.findByText('Todavía no hay duties asignados a esta ruta');
+    await screen.findByText('Todavía no hay turnos asignados a esta ruta');
     await screen.findByText('Truck 1 — Alex');
     await user.selectOptions(
-      screen.getByRole('combobox', { name: 'Unit' }),
+      screen.getByRole('combobox', { name: 'Unidad' }),
       'unit-1',
     );
-    fireEvent.change(screen.getByLabelText('Start time'), {
+    fireEvent.change(screen.getByLabelText('Hora de inicio'), {
       target: { value: startsAt },
     });
-    fireEvent.change(screen.getByLabelText('End time'), {
+    fireEvent.change(screen.getByLabelText('Hora de fin'), {
       target: { value: endsAt },
     });
-    await user.click(screen.getByRole('button', { name: 'Asignar duty' }));
+    await user.click(screen.getByRole('button', { name: 'Asignar turno' }));
 
     expect(
       await screen.findByText(
-        'Esta unidad ya tiene un duty asignado en ese horario.',
+        'Esta unidad ya tiene un turno asignado en ese horario.',
       ),
     ).toBeInTheDocument();
   });
@@ -139,19 +139,19 @@ describe('RouteDutiesOrganism', () => {
       </MockedProvider>,
     );
 
-    await screen.findByText('Todavía no hay duties asignados a esta ruta');
+    await screen.findByText('Todavía no hay turnos asignados a esta ruta');
     await screen.findByText('Truck 1 — Alex');
     await user.selectOptions(
-      screen.getByRole('combobox', { name: 'Unit' }),
+      screen.getByRole('combobox', { name: 'Unidad' }),
       'unit-1',
     );
-    fireEvent.change(screen.getByLabelText('Start time'), {
+    fireEvent.change(screen.getByLabelText('Hora de inicio'), {
       target: { value: startsAt },
     });
-    fireEvent.change(screen.getByLabelText('End time'), {
+    fireEvent.change(screen.getByLabelText('Hora de fin'), {
       target: { value: endsAt },
     });
-    await user.click(screen.getByRole('button', { name: 'Asignar duty' }));
+    await user.click(screen.getByRole('button', { name: 'Asignar turno' }));
 
     expect(await screen.findByText('Truck 1 (Alex)')).toBeInTheDocument();
   });
