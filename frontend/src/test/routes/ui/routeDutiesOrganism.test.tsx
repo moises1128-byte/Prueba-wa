@@ -9,6 +9,7 @@ import {
   CREATE_DUTY_MUTATION,
 } from '@/features/routes/infrastructure/duties.graphql';
 import { RouteDutiesOrganism } from '@/features/routes/ui/organisms/routeDutiesOrganism';
+import { ConfirmDialogProvider } from '@/context/confirmDialogProvider';
 
 const routeId = 'route-1';
 
@@ -59,7 +60,9 @@ describe('RouteDutiesOrganism', () => {
     render(
       <>
         <MockedProvider mocks={mocks}>
-          <RouteDutiesOrganism routeId={routeId} />
+          <ConfirmDialogProvider>
+            <RouteDutiesOrganism routeId={routeId} />
+          </ConfirmDialogProvider>
         </MockedProvider>
         <Toaster />
       </>,
@@ -130,7 +133,9 @@ describe('RouteDutiesOrganism', () => {
 
     render(
       <MockedProvider mocks={mocks}>
-        <RouteDutiesOrganism routeId={routeId} />
+        <ConfirmDialogProvider>
+          <RouteDutiesOrganism routeId={routeId} />
+        </ConfirmDialogProvider>
       </MockedProvider>,
     );
 

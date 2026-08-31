@@ -1,0 +1,33 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(0 0 0 / 50%);
+  z-index: 1000;
+}
+
+.dialog {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  max-width: 24rem;
+  width: calc(100% - var(--space-lg) * 2);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 20%);
+}
+
+.message {
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-lg);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+}
+
+.confirmButton {
+  background: var(--color-error);
+}

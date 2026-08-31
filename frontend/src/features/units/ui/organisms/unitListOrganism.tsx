@@ -9,6 +9,7 @@ import { EmptyState } from '@/shared/ui/molecules/emptyState';
 import { ErrorState } from '@/shared/ui/molecules/errorState';
 import { Button } from '@/shared/ui/atoms/button';
 import { getGraphQLErrorCode } from '@/shared/utils/getGraphQLErrorCode';
+import { useConfirm } from '@/context/confirmDialogProvider';
 import styles from './unitListOrganism.module.css';
 
 function deleteUnitErrorMessage(error: unknown): string {
@@ -22,9 +23,10 @@ export function UnitListOrganism() {
   const { data, loading, error } = useUnits();
   const { deleteUnit } = useDeleteUnit();
   const { editingUnit, startEditing } = useUnitEdit();
+  const confirm = useConfirm();
 
-  function handleDelete(id: string) {
-    if (!window.confirm('¿Eliminar esta unidad?')) return;
+  async function handleDelete(id: string) {
+    if (!(await confirm('¿Eliminar esta unidad?'))) return;
     void deleteUnit(id).catch((deleteError: unknown) => {
       toast.error(deleteUnitErrorMessage(deleteError));
     });

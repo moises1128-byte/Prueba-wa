@@ -4,6 +4,7 @@ import { MockedProvider } from '@apollo/client/testing/react';
 import { UNITS_QUERY } from '@/features/units/infrastructure/units.graphql';
 import { UnitListOrganism } from '@/features/units/ui/organisms/unitListOrganism';
 import { UnitEditProvider } from '@/features/units/ui/context/unitEditContext';
+import { ConfirmDialogProvider } from '@/context/confirmDialogProvider';
 
 describe('UnitListOrganism', () => {
   it('renders units once loaded', async () => {
@@ -17,9 +18,11 @@ describe('UnitListOrganism', () => {
     ];
     render(
       <MockedProvider mocks={mocks}>
-        <UnitEditProvider>
-          <UnitListOrganism />
-        </UnitEditProvider>
+        <ConfirmDialogProvider>
+          <UnitEditProvider>
+            <UnitListOrganism />
+          </UnitEditProvider>
+        </ConfirmDialogProvider>
       </MockedProvider>,
     );
     expect(await screen.findByText('Truck 1')).toBeInTheDocument();
@@ -32,9 +35,11 @@ describe('UnitListOrganism', () => {
     ];
     render(
       <MockedProvider mocks={mocks}>
-        <UnitEditProvider>
-          <UnitListOrganism />
-        </UnitEditProvider>
+        <ConfirmDialogProvider>
+          <UnitEditProvider>
+            <UnitListOrganism />
+          </UnitEditProvider>
+        </ConfirmDialogProvider>
       </MockedProvider>,
     );
     expect(

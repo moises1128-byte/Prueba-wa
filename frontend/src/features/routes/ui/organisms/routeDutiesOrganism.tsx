@@ -21,6 +21,7 @@ import { Spinner } from '@/shared/ui/atoms/spinner';
 import { EmptyState } from '@/shared/ui/molecules/emptyState';
 import { ErrorState } from '@/shared/ui/molecules/errorState';
 import { getGraphQLErrorCode } from '@/shared/utils/getGraphQLErrorCode';
+import { useConfirm } from '@/context/confirmDialogProvider';
 import type { Duty } from '../../domain/duty.model';
 import styles from './routeDutiesOrganism.module.css';
 
@@ -44,6 +45,7 @@ export function RouteDutiesOrganism({ routeId }: RouteDutiesOrganismProps) {
   const { updateDuty, loading: updating } = useUpdateDuty(routeId);
   const { deleteDuty } = useDeleteDuty(routeId);
   const [editingDuty, setEditingDuty] = React.useState<Duty | null>(null);
+  const confirm = useConfirm();
 
   const saving = creating || updating;
 
@@ -79,8 +81,8 @@ export function RouteDutiesOrganism({ routeId }: RouteDutiesOrganismProps) {
     }
   }
 
-  function handleDelete(id: string) {
-    if (!window.confirm('¿Eliminar este duty?')) return;
+  async function handleDelete(id: string) {
+    if (!(await confirm('¿Eliminar este duty?'))) return;
     void deleteDuty(id).catch(() => {
       toast.error('No se pudo eliminar el duty. Inténtalo de nuevo.');
     });

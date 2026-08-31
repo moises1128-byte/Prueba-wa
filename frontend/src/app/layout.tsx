@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { Toaster } from 'sonner';
 import { AppApolloProvider } from '@/context/appApolloProvider';
+import { ConfirmDialogProvider } from '@/context/confirmDialogProvider';
 import { AppNav } from '@/shared/ui/molecules/appNav';
 import './globals.css';
 
@@ -25,9 +26,11 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
     <html lang="es" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body>
         <AppApolloProvider>
-          <AppNav />
-          {children}
-          <Toaster position="top-right" richColors />
+          <ConfirmDialogProvider>
+            <AppNav />
+            {children}
+            <Toaster position="top-right" richColors />
+          </ConfirmDialogProvider>
         </AppApolloProvider>
       </body>
     </html>

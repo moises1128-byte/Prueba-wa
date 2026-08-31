@@ -17,6 +17,7 @@ import { Button } from '@/shared/ui/atoms/button';
 import { Spinner } from '@/shared/ui/atoms/spinner';
 import { ErrorState } from '@/shared/ui/molecules/errorState';
 import { getGraphQLErrorCode } from '@/shared/utils/getGraphQLErrorCode';
+import { useConfirm } from '@/context/confirmDialogProvider';
 import { routeBuilders } from '@/shared/routes/routes';
 import styles from './editRouteOrganism.module.css';
 
@@ -43,6 +44,7 @@ export function EditRouteOrganism({ routeId }: EditRouteOrganismProps) {
   const { data: route, loading, error } = useRoute(routeId);
   const { updateRoute, loading: updating } = useUpdateRoute();
   const { deleteRoute, loading: deleting } = useDeleteRoute();
+  const confirm = useConfirm();
 
   const methods = useForm<TRouteForm>({
     values: route
@@ -75,9 +77,9 @@ export function EditRouteOrganism({ routeId }: EditRouteOrganismProps) {
     }
   }
 
-  function handleDelete() {
+  async function handleDelete() {
     if (deleting) return;
-    if (!window.confirm('¿Eliminar esta ruta?')) return;
+    if (!(await confirm('¿Eliminar esta ruta?'))) return;
     void deleteRoute(routeId)
       .then(() => router.push(routeBuilders.routes()))
       .catch((deleteError: unknown) => {

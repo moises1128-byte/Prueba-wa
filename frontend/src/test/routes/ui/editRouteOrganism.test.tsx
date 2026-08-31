@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { MockedProvider } from '@apollo/client/testing/react';
 import { ROUTE_QUERY } from '@/features/routes/infrastructure/routes.graphql';
 import { EditRouteOrganism } from '@/features/routes/ui/organisms/editRouteOrganism';
+import { ConfirmDialogProvider } from '@/context/confirmDialogProvider';
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn() }),
@@ -18,7 +19,9 @@ describe('EditRouteOrganism', () => {
     ];
     render(
       <MockedProvider mocks={mocks}>
-        <EditRouteOrganism routeId="missing" />
+        <ConfirmDialogProvider>
+          <EditRouteOrganism routeId="missing" />
+        </ConfirmDialogProvider>
       </MockedProvider>,
     );
     expect(await screen.findByText('Ruta no encontrada')).toBeInTheDocument();
@@ -41,7 +44,9 @@ describe('EditRouteOrganism', () => {
     ];
     render(
       <MockedProvider mocks={mocks}>
-        <EditRouteOrganism routeId="1" />
+        <ConfirmDialogProvider>
+          <EditRouteOrganism routeId="1" />
+        </ConfirmDialogProvider>
       </MockedProvider>,
     );
     expect(
