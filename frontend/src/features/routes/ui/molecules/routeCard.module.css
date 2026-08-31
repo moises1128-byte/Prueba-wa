@@ -8,6 +8,13 @@
   color: inherit;
 }
 
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
 .name {
   font-weight: 600;
 }

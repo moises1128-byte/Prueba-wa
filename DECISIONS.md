@@ -58,6 +58,12 @@ todo IA.
   frontend) pedí que el trabajo se hiciera en una rama aislada y que se me presentaran las opciones
   de merge al terminar — elegí mergear localmente después de verificar tests, no subir un PR ni
   pushear directo.
+- **Campo `description` opcional en los turnos, y la lista de turnos como tabla con columnas
+  etiquetadas.** Viendo la lista de turnos asignados a una ruta ya con datos reales, pedí que se
+  mostrara como una tabla con encabezados (conductor, descripción, hora de partida, hora de
+  llegada) en vez de filas sueltas sin etiquetas — más legible para un usuario que no conoce el
+  modelo de datos. De paso pedí un campo de texto libre y opcional por turno, porque no todos
+  necesitan una nota y forzarlo a obligatorio hubiera sido innecesario.
 
 ## Dónde acepté lo que la IA propuso
 
@@ -70,6 +76,11 @@ todo IA.
   archivos y tests — los aprobé como estaban antes de empezar a ejecutar.
 - Instalar `sonner` para los toasts en vez de construir un sistema propio desde cero — me pareció
   razonable no reinventar algo tan estándar.
+- **Estado "activa"/"inactiva" de una ruta calculado, no guardado.** Pedí un badge que mostrara si
+  una ruta está activa (tiene turnos asignados) o inactiva. La IA propuso derivarlo de la cantidad
+  de turnos que ya se calculaba (`dutyCount`) en vez de agregar un campo nuevo en la base de datos
+  que hubiera que mantener sincronizado manualmente cada vez que se crea o borra un turno — acepté
+  la propuesta porque evita un estado que se puede desincronizar del dato real.
 
 ## Dónde corregí o rechacé
 
@@ -83,9 +94,12 @@ todo IA.
 - **Reemplazar el `confirm()` nativo del navegador por un modal propio.** El diálogo nativo
   ("localhost:3000 dice...") se ve poco profesional y no se puede estilizar — pedí un modal
   consistente con el resto de la UI.
-- **Mantener la palabra "duty" sin traducir**, mezclada con el resto de la UI en español, en vez de
-  traducirla a "turno" o "asignación" (que la IA había sugerido). Preferí eso a introducir un
-  término que no uso en la conversación real con el equipo.
+- **Mantener la palabra "duty" sin traducir, y después revertir esa decisión.** Al principio
+  preferí dejarla así en vez de traducirla a "turno" o "asignación" (que la IA había sugerido),
+  para no introducir un término que no uso en la conversación real con el equipo. Después, ya con
+  la app funcionando y navegándola como la usaría alguien real, mezclar "duty" con el resto de la
+  interfaz en español rompía la experiencia — volví atrás y pedí traducirlo a "turno" en toda la
+  UI (incluidos los `aria-label`), sin dejar ningún resto en inglés visible para el usuario.
 
 ## Bugs reales que encontró el proceso de revisión (y por qué me importa mostrarlos)
 

@@ -94,6 +94,7 @@ async function seed(): Promise<void> {
     unitId: abc123.id.value,
     startsAt: daysFromNow(1, 8),
     endsAt: daysFromNow(1, 12),
+    description: 'Turno matutino, hora pico — salir con 10 min de holgura',
   });
   await createDutyUseCase.execute({
     routeId: candelariaPetare.id.value,
@@ -106,6 +107,7 @@ async function seed(): Promise<void> {
     unitId: def456.id.value,
     startsAt: daysFromNow(1, 9),
     endsAt: daysFromNow(1, 13),
+    description: 'Cubriendo la ruta mientras GHI-789 está en mantenimiento',
   });
   await createDutyUseCase.execute({
     routeId: chacaoHatillo.id.value,
@@ -118,6 +120,7 @@ async function seed(): Promise<void> {
     unitId: jkl321.id.value,
     startsAt: daysFromNow(2, 8),
     endsAt: daysFromNow(2, 12),
+    description: 'Turno de prueba, unidad nueva en la flota',
   });
 
   console.log(
