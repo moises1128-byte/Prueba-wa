@@ -4,13 +4,13 @@ MVP local (no publicado en GitHub). Monorepo con pnpm workspaces.
 
 ## Stack
 
-| Capa       | Tecnología                            |
-| ---------- | ------------------------------------- |
-| Lenguaje   | TypeScript                            |
-| Backend    | NestJS + GraphQL (code-first, Apollo) |
-| Frontend   | Next.js                               |
-| Base datos | MongoDB (vía Mongoose)                |
-| Mapa       | Por definir con el prompt del MVP     |
+| Capa       | Tecnología                              |
+| ---------- | --------------------------------------- |
+| Lenguaje   | TypeScript                              |
+| Backend    | NestJS + GraphQL (code-first, Apollo)   |
+| Frontend   | Next.js                                 |
+| Base datos | MongoDB (vía Mongoose)                  |
+| Mapa       | Leaflet + OpenStreetMap (react-leaflet) |
 
 ## Estructura
 
@@ -49,6 +49,7 @@ pnpm --filter backend test
 
 pnpm --filter frontend lint   # ESLint
 pnpm --filter frontend build  # typecheck + build
+pnpm --filter frontend test   # Vitest + React Testing Library
 ```
 
 ## Convenciones
