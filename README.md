@@ -110,11 +110,15 @@ ventana horaria).
   partir de si tiene duties asignados (`dutyCount > 0`), no un campo guardado aparte que haya que
   mantener sincronizado.
 - **Toda la interfaz en español**, con notificaciones toast para errores de acciones (crear, editar,
-  borrar) y validación de campo mostrada junto al campo que falló.
+  borrar), validación de campo mostrada junto al campo que falló, y un modal de confirmación propio
+  (en vez del `confirm()` nativo del navegador) antes de borrar una ruta, unidad o turno.
 - **Tests**: dominio puro (reglas de solapamiento, entidades), casos de uso con repositorios
   mockeados, integración contra MongoDB real, y el test de concurrencia (repositorio + HTTP/GraphQL
   completo) que prueba la garantía central. En el frontend, componentes probados con Vitest +
   Testing Library, mockeando en el borde de Apollo Client.
+- **Script de datos de ejemplo** (`pnpm --filter backend seed`, ver sección "Datos de ejemplo" más
+  abajo) para que la app no arranque vacía — pasa por los mismos use cases que la API real, así que
+  la data respeta todas las reglas de negocio, incluida la de no-solapamiento.
 
 ## Concurrencia y casos borde — qué queda protegido y qué no
 
